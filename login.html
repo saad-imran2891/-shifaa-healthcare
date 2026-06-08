@@ -626,15 +626,15 @@
           <button class="submit-btn" onclick="loginDoctor()">Enter Doctor Dashboard →</button>
         </div>
 
-        <!-- Lab Network Form -->
+        <!-- Lab Network Form (updated placeholder to match seed) -->
         <div id="labForm" style="display:none;">
           <div class="field">
-            <label>Lab License ID</label>
-            <input type="text" id="labLicense" placeholder="e.g., LAB-9923" />
+            <label>Lab License ID (Registration No.)</label>
+            <input type="text" id="labLicense" placeholder="e.g., DRAP-10011" />
           </div>
           <div class="field">
             <label>Corporate Email</label>
-            <input type="email" id="labEmail" placeholder="reporting@chughtailab.pk" />
+            <input type="email" id="labEmail" placeholder="lab@diagnostic.pk" />
           </div>
           <div class="field">
             <label>Password</label>
@@ -736,11 +736,11 @@
       document.getElementById('togLab').classList.toggle('active', type === 'lab');
 
       if (type === 'patient') {
-        document.getElementById('demoHint').textContent = 'Secure Portal: Please enter your login credentials to continue.';
+        document.getElementById('demoHint').innerHTML = 'Patient Login Demo: CNIC = 42101-1234567-8 &nbsp; Password = patient123';
       } else if (type === 'doctor') {
-        document.getElementById('demoHint').textContent = 'Demo: PMDC 12345 / any email / any password';
+        document.getElementById('demoHint').innerHTML = 'Doctor Demo: PMDC = 12345 (any email/password)';
       } else {
-        document.getElementById('demoHint').textContent = 'Demo: Subscribed Lab Access (Enter details to trigger B2B validation)';
+        document.getElementById('demoHint').innerHTML = 'Lab Demo: License ID = <strong>DRAP-10011</strong> (Chughtai Lab)<br>Email: karachi@chughtailab.com &nbsp; Password: lab123';
       }
       showError('');
     };
@@ -761,7 +761,6 @@
       }
 
       try {
-        // Direct document reference approach utilizing document node key mapping
         const docRef = doc(db, "patients", cnic);
         const snap = await getDoc(docRef);
 
@@ -772,7 +771,6 @@
 
         const userData = snap.data();
 
-        // Exact custom string comparison bypasses old 7 digit sliced logic
         if (userData.password === pass) {
           sessionStorage.setItem('shifaa_patient', JSON.stringify(userData));
           localStorage.setItem("userRole", "Patient");
@@ -800,7 +798,7 @@
       } catch (e) { showError('Connection error. Try again.'); }
     };
 
-    window.loginLab = () => {
+    window.loginLab = async () => {
       const license = document.getElementById('labLicense').value.trim();
       const email = document.getElementById('labEmail').value.trim();
       const pass = document.getElementById('labPass').value.trim();
@@ -810,8 +808,28 @@
         return;
       }
 
-      localStorage.setItem("userRole", "Lab");
-      window.location.href = 'lab.html';
+      try {
+        // Query labs collection by regno (license) and email
+        const q = query(collection(db, "labs"), where("regno", "==", license), where("email", "==", email));
+        const snap = await getDocs(q);
+        if (snap.empty) {
+          showError('Invalid lab credentials. Registration number or email not found.');
+          return;
+        }
+        const labData = snap.docs[0].data();
+        // Optional: verify password
+        if (labData.password !== pass) {
+          showError('Incorrect password.');
+          return;
+        }
+        // Store lab data for lab.html to use
+        sessionStorage.setItem('shifaa_lab', JSON.stringify(labData));
+        localStorage.setItem("userRole", "Lab");
+        window.location.href = 'lab.html';
+      } catch (err) {
+        console.error(err);
+        showError('Connection error. Try again.');
+      }
     };
   </script>
 </body>
