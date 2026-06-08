@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shifaa — Lab Partner Portal</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Mulish:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --navy: #0b3d52;
+            --teal: #0b7a75;
+            --teal-mid: #0e9e98;
+            --teal-light: #e6f5f4;
+            --accent: #e05c2a;
+            --accent-light: #fdf0eb;
+            --text: #0f1f28;
+            --text-mid: #3a5060;
+            --text-muted: #7a90a0;
+            --border: #dce8ec;
+            --bg: #f2f6f8;
+            --card: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Mulish', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        /* ── NAV BAR ── */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 0 48px;
+            height: 62px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(11, 61, 82, 0.96);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 4px;
+        }
+
+        .logo em {
+            color: #5ecfef;
+            font-style: normal;
+        }
+
+        .logout-btn {
+            font-size: 12px;
+            font-weight: 700;
+            color: white;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ── TOP LIVE SUBSCRIPTION BANNER (CLEANED) ── */
+        .top-sub-bar {
+            background: var(--navy);
+            color: white;
+            border-radius: 12px;
+            padding: 18px 24px;
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(11, 61, 82, 0.15);
+        }
+
+        .lab-meta-info {
+            display: flex;
+            gap: 50px;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meta-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #5ecfef;
+            margin-bottom: 4px;
+        }
+
+        .meta-value {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .meta-value strong {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+        }
+
+        .badge-premium {
+            background: #0b7a75;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 0 12px rgba(11, 122, 117, 0.4);
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 420px;
+            gap: 32px;
+        }
+
+        @media (max-width: 900px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .top-sub-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .lab-meta-info {
+                flex-direction: column;
+                gap: 12px;
+            }
+        }
+
+        /* ── SHIFAA CARDS ── */
+        .shifaa-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 32px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px rgba(11, 61, 82, 0.03);
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 6px;
+        }
+
+        .card-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        /* ── FINANCIALS WIDGET ── */
+        .financial-box {
+            background: var(--bg);
+            border-radius: 10px;
+            padding: 18px;
+            border: 1px solid var(--border);
+        }
+
+        .fin-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .fin-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .fin-label {
+            color: var(--text-mid);
+            font-weight: 500;
+        }
+
+        .fin-value {
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        /* ── FORMS & INPUTS ── */
+        .field {
+            margin-bottom: 20px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: var(--text-mid);
+            margin-bottom: 6px;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: 'Mulish', sans-serif;
+            font-size: 13px;
+            color: var(--text);
+            outline: none;
+            transition: 0.2s;
+            background: var(--bg);
+        }
+
+        .field input:focus,
+        .field select:focus {
+            border-color: var(--teal);
+            background: white;
+            box-shadow: 0 0 0 3px var(--teal-light);
+        }
+
+        .field input[type="file"] {
+            background: white;
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        /* ── ACTION BUTTONS ── */
+        .primary-btn {
+            width: 100%;
+            background: var(--navy);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-family: 'Mulish', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            letter-spacing: 0.3px;
+        }
+
+        .primary-btn:hover {
+            background: #0a2f40;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(11, 61, 82, 0.15);
+        }
+
+        .primary-btn:disabled {
+            background: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAV -->
+    <nav>
+        <div class="logo">SHI<em>FAA</em></div>
+        <button class="logout-btn" onclick="logout()">Logout Session</button>
+    </nav>
+
+    <div class="container">
+
+        <!-- LIVE SUBSCRIPTION HEADER BAR (No Pricing Shown Here Now) -->
+        <div class="top-sub-bar">
+            <div class="lab-meta-info">
+                <div class="meta-item">
+                    <span class="meta-label">Connected Partner Node</span>
+                    <span class="meta-value"><strong>Chughtai Lab Network</strong></span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Corporate License Key</span>
+                    <span class="meta-value" style="font-family: monospace; color: #5ecfef;">LAB-9923-PK</span>
+                </div>
+            </div>
+            <div>
+                <span class="badge-premium">✓ Active Network Member</span>
+            </div>
+        </div>
+
+        <!-- Lower Workspace Architecture -->
+        <div class="grid-layout">
+
+            <!-- LEFT COLUMN: PDF UPLOAD MECHANISM -->
+            <div class="shifaa-card">
+                <div class="card-title">Encrypted Diagnostic Upload Portal</div>
+                <div class="card-sub">Attach and transmit official PDF laboratory files directly to Patient & Doctor
+                    pipelines instantly.</div>
+
+                <!-- Patient Control -->
+                <div class="field">
+                    <label>Authorized Patient CNIC</label>
+                    <input type="text" id="patient-cnic" placeholder="e.g., 42101-1234567-8" />
+                </div>
+
+                <!-- Doctor Control -->
+                <div class="field">
+                    <label>Authorized Doctor PMDC ID</label>
+                    <input type="text" id="doctor-pmdc" placeholder="e.g., 12345" />
+                </div>
+
+                <div class="field">
+                    <label>Diagnostic Test Category</label>
+                    <select id="test-type">
+                        <option value="Complete Blood Count (CBC)">Complete Blood Count (CBC)</option>
+                        <option value="HbA1c (Glycated Hemoglobin)">HbA1c (Glycated Hemoglobin)</option>
+                        <option value="Lipid Profile Standard">Lipid Profile Standard</option>
+                        <option value="Liver Function Profile (LFT)">Liver Function Profile (LFT)</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Official Lab Report Document (PDF Format)</label>
+                    <input type="file" id="report-file" accept="application/pdf" />
+                </div>
+
+                <button class="primary-btn" style="margin-top: 8px;" id="upload-btn">Publish Secure PDF Node →</button>
+            </div>
+
+            <!-- RIGHT COLUMN: FINANCIAL AND SAAS REVENUE MATRIX -->
+            <div class="shifaa-card" style="height: fit-content;">
+                <div class="card-title" style="font-size: 18px;">B2B Revenue Architecture</div>
+                <p class="card-sub" style="margin-bottom: 16px;">Core Ecosystem Logic: Shifaa is 100% free for citizens
+                    and doctors. System overhead architecture funding is structured exclusively via annual flat
+                    laboratory licenses.</p>
+
+                <div class="financial-box">
+                    <div class="fin-row">
+                        <span class="fin-label">License Class:</span>
+                        <span class="fin-value">Verified Lab Tier-1</span>
+                    </div>
+                    <div class="fin-row">
+                        <span class="fin-label">Node Integrity:</span>
+                        <span class="fin-value" style="color: var(--teal);">Live Ingestion Allowed</span>
+                    </div>
+                </div>
+
+                <p
+                    style="font-size: 11px; color: var(--text-muted); line-height: 1.5; text-align: center; margin-top: 16px;">
+                    🔒 Privacy Rule enforced: Only database streams with matching Patient CNIC OR Doctor PMDC keys can
+                    decrypt this attachment.
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FIREBASE CONNECTION FOR REALTIME SYNC AND BASE64 STORAGE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCWnb5WA8GHS3Ez_nEpVKbGJox6dGEdYOg",
+            authDomain: "shifaa-2fb18.firebaseapp.com",
+            projectId: "shifaa-2fb18",
+            storageBucket: "shifaa-2fb18.firebasestorage.app",
+            messagingSenderId: "535826100759",
+            appId: "1:535826100759:web:d31fa59255923dc6636252"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        document.getElementById('upload-btn').addEventListener('click', async () => {
+            const cnic = document.getElementById('patient-cnic').value.trim();
+            const pmdc = document.getElementById('doctor-pmdc').value.trim();
+            const type = document.getElementById('test-type').value;
+            const fileInput = document.getElementById('report-file');
+
+            if (!cnic || !pmdc || !fileInput.files.length) {
+                alert("Error: Please complete all validation criteria (Patient CNIC, Doctor PMDC, and PDF file) before deploying to node.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            if (file.type !== "application/pdf") {
+                alert("Error: Only verified system PDF documents are accepted.");
+                return;
+            }
+
+            const uploadBtn = document.getElementById('upload-btn');
+            uploadBtn.innerText = "Encoding & Syncing PDF Matrix...";
+            uploadBtn.disabled = true;
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async () => {
+                const base64PDF = reader.result;
+
+                try {
+                    await addDoc(collection(db, "reports"), {
+                        allowedPatientCNIC: cnic,
+                        allowedDoctorPMDC: pmdc,
+                        testType: type,
+                        resultDetails: type + " Document Attached",
+                        pdfData: base64PDF,
+                        timestamp: new Date().toLocaleDateString('en-GB'),
+                        originNode: "Chughtai Lab Network"
+                    });
+
+                    alert("TRANSACTION SECURED:\nOfficial PDF report compiled and isolated! Access granted exclusively to Patient (" + cnic + ") and Doctor (" + pmdc + ").");
+
+                    document.getElementById('patient-cnic').value = "";
+                    document.getElementById('doctor-pmdc').value = "";
+                    fileInput.value = "";
+                } catch (e) {
+                    alert("Database transaction error. Please evaluate connection infrastructure.");
+                } finally {
+                    uploadBtn.innerText = "Publish Secure PDF Node →";
+                    uploadBtn.disabled = false;
+                }
+            };
+        });
+    </script>
+
+    <script>
+        function logout() {
+            localStorage.removeItem("userRole");
+            window.location.href = "login.html";
+        }
+    </script>
+</body>
+
+</html>

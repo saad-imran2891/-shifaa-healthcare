@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Shifaa — Seed Database</title>
+<style>
+  body { font-family: sans-serif; max-width: 800px; margin: 60px auto; padding: 0 20px; }
+  h2 { color: #064f4f; }
+  button { background: #064f4f; color: white; padding: 14px 28px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  #log { margin-top: 20px; font-size: 13px; line-height: 1.8; max-height: 400px; overflow-y: auto; }
+  .ok { color: #059669; }
+  .done { color: #064f4f; font-weight: bold; font-size: 16px; margin-top: 10px; }
+  .err { color: #dc2626; }
+  .section { color: #0369a1; font-weight: bold; margin-top: 8px; }
+</style>
+</head>
+<body>
+<h2>Shifaa — Seed Firebase Database</h2>
+<p>Click once to load all 32 patients, 10 doctors, and 5 labs into Firestore.<br><strong>Do not run more than once.</strong></p>
+<button id="seedBtn" onclick="seed()">Seed Database Now</button>
+<div id="log"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCWnb5WA8GHS3Ez_nEpVKbGJox6dGEdYOg",
+  authDomain: "shifaa-2fb18.firebaseapp.com",
+  projectId: "shifaa-2fb18",
+  storageBucket: "shifaa-2fb18.firebasestorage.app",
+  messagingSenderId: "535826100759",
+  appId: "1:535826100759:web:d31fa59255923dc6636252"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const shifaaDatabase = {
+  doctors: [
+    { id: "D001", name: "Dr. Ahmed Khan",    specialization: "General Physician",    pmdc: "12345", hospital: "Aga Khan Hospital",            email: "ahmed.khan@akuh.pk",    password: "doctor123", verified: true,  city: "Karachi",    phone: "0300-1234500" },
+    { id: "D002", name: "Dr. Sara Malik",    specialization: "Endocrinologist",      pmdc: "23456", hospital: "Liaquat National Hospital",    email: "sara.malik@lnh.pk",     password: "doctor123", verified: true,  city: "Karachi",    phone: "0300-2345600" },
+    { id: "D003", name: "Dr. Bilal Hussain", specialization: "Cardiologist",         pmdc: "34567", hospital: "South City Hospital",          email: "bilal.h@sch.pk",        password: "doctor123", verified: true,  city: "Karachi",    phone: "0300-3456700" },
+    { id: "D004", name: "Dr. Fatima Zahra",  specialization: "Neurologist",          pmdc: "45678", hospital: "Ziauddin Hospital",            email: "fatima.z@ziauddin.pk",  password: "doctor123", verified: true,  city: "Karachi",    phone: "0300-4567800" },
+    { id: "D005", name: "Dr. Usman Tariq",   specialization: "Orthopedic Surgeon",   pmdc: "56789", hospital: "National Medical Centre",      email: "usman.t@nmc.pk",        password: "doctor123", verified: true,  city: "Karachi",    phone: "0300-5678900" },
+    { id: "D006", name: "Dr. Aisha Siddiqui",specialization: "Gynecologist",         pmdc: "67890", hospital: "Aga Khan Hospital",            email: "aisha.s@akuh.pk",       password: "doctor123", verified: true,  city: "Karachi",    phone: "0300-6789000" },
+    { id: "D007", name: "Dr. Hamza Malik",   specialization: "Pulmonologist",        pmdc: "78901", hospital: "Jinnah Hospital",              email: "hamza.m@jinnah.pk",     password: "doctor123", verified: true,  city: "Karachi",    phone: "0300-7890100" },
+    { id: "D008", name: "Dr. Zara Ahmed",    specialization: "Dermatologist",        pmdc: "89012", hospital: "Ziauddin Hospital",            email: "zara.a@ziauddin.pk",    password: "doctor123", verified: true,  city: "Karachi",    phone: "0300-8901200" },
+    { id: "D009", name: "Dr. Imran Sheikh",  specialization: "Gastroenterologist",   pmdc: "90123", hospital: "South City Hospital",          email: "imran.s@sch.pk",        password: "doctor123", verified: true,  city: "Karachi",    phone: "0300-9012300" },
+    { id: "D010", name: "Dr. Nadia Qureshi", specialization: "Psychiatrist",         pmdc: "01234", hospital: "Liaquat National Hospital",    email: "nadia.q@lnh.pk",        password: "doctor123", verified: true,  city: "Karachi",    phone: "0300-0123400" }
+  ],
+
+  labs: [
+    {
+      id: "L001",
+      name: "Chughtai Lab",
+      regno: "DRAP-10011",
+      city: "Karachi",
+      address: "Plot 5, Block 2, PECHS, Shahrah-e-Faisal, Karachi",
+      phone: "021-111-456-789",
+      lab_type: "Full Diagnostic Centre",
+      email: "karachi@chughtailab.com",
+      password: "lab123",
+      verified: true,
+      registered_at: "2026-01-01T00:00:00.000Z",
+      services: ["CBC", "LFT", "RFT", "Thyroid Panel", "HbA1c", "Lipid Profile", "HCV RNA PCR", "Culture & Sensitivity", "Hormonal Panel", "Tumour Markers"],
+      linked_patients: ["42101-1234567-8", "42201-2345678-2", "42401-6789012-6", "42101-0123456-0"]
+    },
+    {
+      id: "L002",
+      name: "Essa Laboratory",
+      regno: "DRAP-10022",
+      city: "Karachi",
+      address: "Essa Laboratory Building, Dhoraji Colony, Gulshan-e-Iqbal, Karachi",
+      phone: "021-34551414",
+      lab_type: "Pathology / Blood Tests",
+      email: "info@essalab.pk",
+      password: "lab123",
+      verified: true,
+      registered_at: "2026-01-01T00:00:00.000Z",
+      services: ["CBC", "Blood Sugar", "Urine DR", "Uric Acid", "Kidney Function Test", "Electrolytes", "Blood Group", "ESR", "CRP", "Dengue NS1"],
+      linked_patients: ["42101-5678901-5", "42601-9012345-9", "42601-0123012-0"]
+    },
+    {
+      id: "L003",
+      name: "Dr. Ziauddin Diagnostic Centre",
+      regno: "DRAP-10033",
+      city: "Karachi",
+      address: "Ziauddin Hospital Campus, Block B, North Nazimabad, Karachi",
+      phone: "021-36646462",
+      lab_type: "Full Diagnostic Centre",
+      email: "diagnostics@ziauddin.pk",
+      password: "lab123",
+      verified: true,
+      registered_at: "2026-01-01T00:00:00.000Z",
+      services: ["MRI", "CT Scan", "X-Ray", "Ultrasound", "Echocardiogram", "EEG", "ECG", "Spirometry", "DEXA Scan", "Mammogram"],
+      linked_patients: ["42301-4567890-4", "42501-8901234-8", "42101-7788990-7", "42101-1357913-1"]
+    },
+    {
+      id: "L004",
+      name: "Islamabad Diagnostic Centre (IDC)",
+      regno: "DRAP-10044",
+      city: "Islamabad",
+      address: "Plot 346, Street 53, G-9/4, Islamabad",
+      phone: "051-2856464",
+      lab_type: "Full Diagnostic Centre",
+      email: "reports@idc.com.pk",
+      password: "lab123",
+      verified: true,
+      registered_at: "2026-01-01T00:00:00.000Z",
+      services: ["CBC", "LFT", "Uric Acid", "Joint X-Ray", "Bone Density", "PSA", "Prostate Ultrasound", "ANA Panel", "Complement Levels", "DaT Scan"],
+      linked_patients: ["54401-1122334-1", "42201-2233445-2"]
+    },
+    {
+      id: "L005",
+      name: "Aga Khan University Hospital Laboratory",
+      regno: "DRAP-10055",
+      city: "Karachi",
+      address: "Stadium Road, Karachi 74800",
+      phone: "021-111-911-911",
+      lab_type: "Full Diagnostic Centre",
+      email: "lab@aku.edu",
+      password: "lab123",
+      verified: true,
+      registered_at: "2026-01-01T00:00:00.000Z",
+      services: ["Anti-tTG IgA", "Duodenal Biopsy", "H. Pylori Breath Test", "Upper GI Endoscopy", "CSF Analysis", "CD4 Count", "HIV Viral Load", "CA 15-3", "BNP Level", "INR", "Pacemaker Interrogation"],
+      linked_patients: ["42101-2345234-2", "42501-5678567-5", "42101-6789678-6", "42601-0123012-0", "42201-8901890-8", "42101-9012901-9"]
+    }
+  ],
+
+  patients: [
+    {
+      id: "P001", name: "Muhammad Ali", cnic: "42101-1234567-8", age: 52, gender: "Male",
+      blood_group: "O+", phone: "0312-1234567", city: "Karachi", password: "patient123",
+      chronic_conditions: ["Diabetes Type 2", "Hypertension"], allergies: ["Penicillin"],
+      surgeries: [],
+      visits: [
+        { date: "2026-06-05", doctor: "Dr. Ahmed Khan", specialization: "General Physician", symptoms: ["Fever", "Fatigue", "Frequent urination"], diagnosis: "Uncontrolled Type 2 Diabetes", prescription: [{ medicine: "Metformin", dose: "500mg", frequency: "Twice Daily" }, { medicine: "Blood Sugar Monitoring", dose: "-", frequency: "Daily" }], notes: "Patient advised to reduce sugar intake and exercise regularly." },
+        { date: "2026-05-15", doctor: "Dr. Sara Malik", specialization: "Endocrinologist", symptoms: [], lab_results: ["HbA1c: 8.9%", "Fasting Blood Sugar: 180 mg/dL"], diagnosis: "Poor Glycemic Control", prescription: [{ medicine: "Metformin", dose: "500mg", frequency: "Twice Daily" }, { medicine: "Sitagliptin", dose: "50mg", frequency: "Once Daily" }], notes: "Follow-up after 4 weeks." },
+        { date: "2026-04-02", doctor: "Dr. Bilal Hussain", specialization: "Cardiologist", symptoms: ["Headache", "Dizziness"], vitals: { blood_pressure: "160/100 mmHg" }, diagnosis: "Stage 2 Hypertension", prescription: [{ medicine: "Amlodipine", dose: "5mg", frequency: "Once Daily" }], notes: "Monitor blood pressure daily." }
+      ],
+      active_medications: [{ medicine: "Metformin", dose: "500mg", frequency: "Twice Daily" }, { medicine: "Sitagliptin", dose: "50mg", frequency: "Once Daily" }, { medicine: "Amlodipine", dose: "5mg", frequency: "Once Daily" }],
+      lab_reports: [{ date: "2026-05-15", report: "HbA1c Report", status: "Available" }, { date: "2026-05-15", report: "Blood Sugar Test", status: "Available" }, { date: "2026-04-02", report: "Blood Pressure Assessment", status: "Available" }],
+      referrals: [{ date: "2026-05-10", from: "Dr. Ahmed Khan", to: "Dr. Sara Malik", reason: "Elevated blood sugar despite medication", notes: "Please evaluate for advanced diabetes management." }]
+    },
+    {
+      id: "P002", name: "Fatima Noor", cnic: "42201-2345678-2", age: 34, gender: "Female",
+      blood_group: "A+", phone: "0333-2345678", city: "Karachi", password: "patient123",
+      chronic_conditions: ["Asthma"], allergies: ["Aspirin", "Dust"], surgeries: [],
+      visits: [
+        { date: "2026-06-01", doctor: "Dr. Hamza Malik", specialization: "Pulmonologist", symptoms: ["Shortness of breath", "Wheezing", "Chest tightness"], diagnosis: "Acute Asthma Attack", prescription: [{ medicine: "Salbutamol Inhaler", dose: "100mcg", frequency: "As needed" }, { medicine: "Budesonide Inhaler", dose: "200mcg", frequency: "Twice Daily" }], notes: "Avoid cold air and dust. Carry inhaler at all times." },
+        { date: "2026-03-20", doctor: "Dr. Hamza Malik", specialization: "Pulmonologist", symptoms: ["Coughing at night", "Mild wheezing"], diagnosis: "Mild Persistent Asthma", prescription: [{ medicine: "Montelukast", dose: "10mg", frequency: "Once Daily at night" }], notes: "Spirometry test recommended." }
+      ],
+      active_medications: [{ medicine: "Salbutamol Inhaler", dose: "100mcg", frequency: "As needed" }, { medicine: "Budesonide Inhaler", dose: "200mcg", frequency: "Twice Daily" }, { medicine: "Montelukast", dose: "10mg", frequency: "Once Daily" }],
+      lab_reports: [{ date: "2026-03-20", report: "Spirometry Test", status: "Available" }, { date: "2026-06-01", report: "Chest X-Ray", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P003", name: "Khalid Mehmood", cnic: "35201-3456789-3", age: 67, gender: "Male",
+      blood_group: "B+", phone: "0300-3456789", city: "Lahore", password: "patient123",
+      chronic_conditions: ["Coronary Artery Disease", "Diabetes Type 2"], allergies: ["Sulfa drugs"],
+      surgeries: [{ name: "Coronary Angioplasty", date: "2023-08-15", hospital: "Punjab Institute of Cardiology" }],
+      visits: [{ date: "2026-05-28", doctor: "Dr. Bilal Hussain", specialization: "Cardiologist", symptoms: ["Chest pain", "Shortness of breath on exertion"], vitals: { blood_pressure: "145/95 mmHg", pulse: "88 bpm" }, diagnosis: "Stable Angina", prescription: [{ medicine: "Aspirin", dose: "75mg", frequency: "Once Daily" }, { medicine: "Atorvastatin", dose: "40mg", frequency: "Once Daily at night" }, { medicine: "Bisoprolol", dose: "5mg", frequency: "Once Daily" }], notes: "ECG done. Stress test recommended. Avoid strenuous activity." }],
+      active_medications: [{ medicine: "Aspirin", dose: "75mg", frequency: "Once Daily" }, { medicine: "Atorvastatin", dose: "40mg", frequency: "Once Daily" }, { medicine: "Bisoprolol", dose: "5mg", frequency: "Once Daily" }, { medicine: "Metformin", dose: "1000mg", frequency: "Twice Daily" }],
+      lab_reports: [{ date: "2026-05-28", report: "ECG Report", status: "Available" }, { date: "2026-05-28", report: "Lipid Profile", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P004", name: "Ayesha Rehman", cnic: "42301-4567890-4", age: 28, gender: "Female",
+      blood_group: "AB+", phone: "0321-4567890", city: "Karachi", password: "patient123",
+      chronic_conditions: [], allergies: [], surgeries: [],
+      visits: [{ date: "2026-06-03", doctor: "Dr. Aisha Siddiqui", specialization: "Gynecologist", symptoms: ["Irregular periods", "Abdominal pain", "Weight gain"], diagnosis: "Polycystic Ovary Syndrome (PCOS)", prescription: [{ medicine: "Metformin", dose: "500mg", frequency: "Twice Daily" }, { medicine: "Clomiphene", dose: "50mg", frequency: "Day 2-6 of cycle" }], notes: "Ultrasound done. Lifestyle modification and diet control advised. Follow up in 3 months." }],
+      active_medications: [{ medicine: "Metformin", dose: "500mg", frequency: "Twice Daily" }, { medicine: "Clomiphene", dose: "50mg", frequency: "Day 2-6 of cycle" }],
+      lab_reports: [{ date: "2026-06-03", report: "Pelvic Ultrasound", status: "Available" }, { date: "2026-06-03", report: "Hormonal Panel", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P005", name: "Tariq Jameel", cnic: "42101-5678901-5", age: 45, gender: "Male",
+      blood_group: "O-", phone: "0345-5678901", city: "Karachi", password: "patient123",
+      chronic_conditions: ["Chronic Kidney Disease Stage 3"], allergies: ["NSAIDs", "Contrast dye"], surgeries: [],
+      visits: [{ date: "2026-05-20", doctor: "Dr. Ahmed Khan", specialization: "General Physician", symptoms: ["Fatigue", "Swelling in legs", "Decreased urine output"], lab_results: ["Creatinine: 2.8 mg/dL", "GFR: 32 mL/min", "Urea: 58 mg/dL"], diagnosis: "CKD Stage 3 Progression", prescription: [{ medicine: "Sodium Bicarbonate", dose: "500mg", frequency: "Three times Daily" }, { medicine: "Furosemide", dose: "40mg", frequency: "Once Daily" }], notes: "Restrict protein intake. Avoid nephrotoxic drugs. Nephrology referral made." }],
+      active_medications: [{ medicine: "Sodium Bicarbonate", dose: "500mg", frequency: "Three times Daily" }, { medicine: "Furosemide", dose: "40mg", frequency: "Once Daily" }],
+      lab_reports: [{ date: "2026-05-20", report: "Kidney Function Test", status: "Available" }, { date: "2026-05-20", report: "Renal Ultrasound", status: "Available" }],
+      referrals: [{ date: "2026-05-20", from: "Dr. Ahmed Khan", to: "Nephrologist", reason: "CKD progression", notes: "Urgent nephrology evaluation needed." }]
+    },
+    {
+      id: "P006", name: "Zainab Hussain", cnic: "42401-6789012-6", age: 19, gender: "Female",
+      blood_group: "A-", phone: "0311-6789012", city: "Karachi", password: "patient123",
+      chronic_conditions: ["Anemia"], allergies: [], surgeries: [],
+      visits: [{ date: "2026-06-02", doctor: "Dr. Ahmed Khan", specialization: "General Physician", symptoms: ["Dizziness", "Pale skin", "Extreme fatigue", "Cold hands"], lab_results: ["Hemoglobin: 7.2 g/dL", "MCV: 68 fL", "Serum Iron: 28 mcg/dL"], diagnosis: "Severe Iron Deficiency Anemia", prescription: [{ medicine: "Ferrous Sulfate", dose: "200mg", frequency: "Twice Daily" }, { medicine: "Vitamin C", dose: "500mg", frequency: "Once Daily" }], notes: "Take iron with orange juice. Avoid tea/coffee with meals. Repeat CBC after 6 weeks." }],
+      active_medications: [{ medicine: "Ferrous Sulfate", dose: "200mg", frequency: "Twice Daily" }, { medicine: "Vitamin C", dose: "500mg", frequency: "Once Daily" }],
+      lab_reports: [{ date: "2026-06-02", report: "Complete Blood Count", status: "Available" }, { date: "2026-06-02", report: "Iron Studies", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P007", name: "Imran Butt", cnic: "35301-7890123-7", age: 38, gender: "Male",
+      blood_group: "B-", phone: "0322-7890123", city: "Lahore", password: "patient123",
+      chronic_conditions: ["Rheumatoid Arthritis"], allergies: ["Ibuprofen"], surgeries: [],
+      visits: [{ date: "2026-05-25", doctor: "Dr. Usman Tariq", specialization: "Orthopedic Surgeon", symptoms: ["Joint pain in hands", "Morning stiffness", "Swollen fingers"], lab_results: ["Rheumatoid Factor: 128 IU/mL", "CRP: 45 mg/L", "ESR: 78 mm/hr"], diagnosis: "Active Rheumatoid Arthritis", prescription: [{ medicine: "Methotrexate", dose: "15mg", frequency: "Once Weekly" }, { medicine: "Folic Acid", dose: "5mg", frequency: "Once Daily (not on MTX day)" }, { medicine: "Prednisolone", dose: "10mg", frequency: "Once Daily (tapering)" }], notes: "Monitor liver function every 3 months. Physio therapy recommended." }],
+      active_medications: [{ medicine: "Methotrexate", dose: "15mg", frequency: "Once Weekly" }, { medicine: "Folic Acid", dose: "5mg", frequency: "Once Daily" }, { medicine: "Prednisolone", dose: "10mg", frequency: "Once Daily" }],
+      lab_reports: [{ date: "2026-05-25", report: "Rheumatoid Factor Test", status: "Available" }, { date: "2026-05-25", report: "X-Ray Hands", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P008", name: "Sana Iqbal", cnic: "42501-8901234-8", age: 42, gender: "Female",
+      blood_group: "O+", phone: "0333-8901234", city: "Karachi", password: "patient123",
+      chronic_conditions: ["Hypothyroidism"], allergies: [], surgeries: [],
+      visits: [{ date: "2026-05-30", doctor: "Dr. Sara Malik", specialization: "Endocrinologist", symptoms: ["Weight gain", "Fatigue", "Hair loss", "Cold intolerance", "Depression"], lab_results: ["TSH: 12.4 mIU/L", "Free T4: 0.6 ng/dL"], diagnosis: "Hypothyroidism - Undertreated", prescription: [{ medicine: "Levothyroxine", dose: "100mcg", frequency: "Once Daily on empty stomach" }], notes: "Take 30 minutes before breakfast. Repeat TFTs after 6 weeks. Avoid calcium supplements near dose time." }],
+      active_medications: [{ medicine: "Levothyroxine", dose: "100mcg", frequency: "Once Daily" }],
+      lab_reports: [{ date: "2026-05-30", report: "Thyroid Function Test", status: "Available" }, { date: "2026-05-30", report: "Thyroid Ultrasound", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P009", name: "Hassan Raza", cnic: "42601-9012345-9", age: 55, gender: "Male",
+      blood_group: "AB-", phone: "0300-9012345", city: "Karachi", password: "patient123",
+      chronic_conditions: ["COPD", "Hypertension"], allergies: ["Beta blockers"], surgeries: [],
+      visits: [{ date: "2026-06-04", doctor: "Dr. Hamza Malik", specialization: "Pulmonologist", symptoms: ["Chronic cough", "Sputum production", "Breathlessness on walking"], vitals: { oxygen_saturation: "91%", respiratory_rate: "22/min" }, diagnosis: "COPD Exacerbation", prescription: [{ medicine: "Tiotropium Inhaler", dose: "18mcg", frequency: "Once Daily" }, { medicine: "Salmeterol/Fluticasone Inhaler", dose: "50/500mcg", frequency: "Twice Daily" }, { medicine: "Azithromycin", dose: "500mg", frequency: "Once Daily for 5 days" }], notes: "Smoking cessation mandatory. Pulmonary rehab program recommended." }],
+      active_medications: [{ medicine: "Tiotropium Inhaler", dose: "18mcg", frequency: "Once Daily" }, { medicine: "Salmeterol/Fluticasone Inhaler", dose: "50/500mcg", frequency: "Twice Daily" }],
+      lab_reports: [{ date: "2026-06-04", report: "Spirometry", status: "Available" }, { date: "2026-06-04", report: "Chest X-Ray", status: "Available" }, { date: "2026-06-04", report: "Arterial Blood Gas", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P010", name: "Maryam Shahid", cnic: "42101-0123456-0", age: 31, gender: "Female",
+      blood_group: "A+", phone: "0312-0123456", city: "Karachi", password: "patient123",
+      chronic_conditions: ["Migraine"], allergies: ["Codeine"], surgeries: [],
+      visits: [{ date: "2026-05-18", doctor: "Dr. Fatima Zahra", specialization: "Neurologist", symptoms: ["Severe one sided headache", "Nausea", "Light sensitivity", "Visual aura"], diagnosis: "Chronic Migraine with Aura", prescription: [{ medicine: "Sumatriptan", dose: "50mg", frequency: "At onset of migraine" }, { medicine: "Propranolol", dose: "40mg", frequency: "Twice Daily (preventive)" }, { medicine: "Domperidone", dose: "10mg", frequency: "As needed for nausea" }], notes: "Keep migraine diary. Avoid triggers: stress, bright light, irregular sleep, skipping meals." }],
+      active_medications: [{ medicine: "Sumatriptan", dose: "50mg", frequency: "At onset" }, { medicine: "Propranolol", dose: "40mg", frequency: "Twice Daily" }],
+      lab_reports: [{ date: "2026-05-18", report: "MRI Brain", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P011", name: "Abdul Qadir", cnic: "54401-1122334-1", age: 60, gender: "Male",
+      blood_group: "B+", phone: "0300-1122334", city: "Islamabad", password: "patient123",
+      chronic_conditions: ["Gout", "Hypertension"], allergies: [],
+      surgeries: [{ name: "Knee Replacement (Left)", date: "2021-03-10", hospital: "PIMS Hospital Islamabad" }],
+      visits: [{ date: "2026-05-22", doctor: "Dr. Usman Tariq", specialization: "Orthopedic Surgeon", symptoms: ["Severe toe joint pain", "Redness and swelling", "Cannot walk"], lab_results: ["Uric Acid: 9.8 mg/dL"], diagnosis: "Acute Gout Attack", prescription: [{ medicine: "Colchicine", dose: "0.5mg", frequency: "Twice Daily" }, { medicine: "Allopurinol", dose: "300mg", frequency: "Once Daily" }, { medicine: "Indomethacin", dose: "25mg", frequency: "Three times Daily with food" }], notes: "Avoid red meat, seafood, alcohol. Increase water intake. Low purine diet." }],
+      active_medications: [{ medicine: "Colchicine", dose: "0.5mg", frequency: "Twice Daily" }, { medicine: "Allopurinol", dose: "300mg", frequency: "Once Daily" }, { medicine: "Amlodipine", dose: "5mg", frequency: "Once Daily" }],
+      lab_reports: [{ date: "2026-05-22", report: "Uric Acid Level", status: "Available" }, { date: "2026-05-22", report: "Joint X-Ray", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P012", name: "Nadia Pervez", cnic: "42201-2233445-2", age: 36, gender: "Female",
+      blood_group: "O+", phone: "0321-2233445", city: "Karachi", password: "patient123",
+      chronic_conditions: ["Depression", "Anxiety Disorder"], allergies: [], surgeries: [],
+      visits: [{ date: "2026-06-01", doctor: "Dr. Nadia Qureshi", specialization: "Psychiatrist", symptoms: ["Persistent sadness", "Loss of appetite", "Insomnia", "Panic attacks"], diagnosis: "Major Depressive Disorder with Panic Disorder", prescription: [{ medicine: "Sertraline", dose: "50mg", frequency: "Once Daily morning" }, { medicine: "Clonazepam", dose: "0.5mg", frequency: "Twice Daily (short term)" }, { medicine: "Melatonin", dose: "3mg", frequency: "At bedtime" }], notes: "CBT sessions recommended. Follow up in 2 weeks. Emergency contact noted." }],
+      active_medications: [{ medicine: "Sertraline", dose: "50mg", frequency: "Once Daily" }, { medicine: "Clonazepam", dose: "0.5mg", frequency: "Twice Daily" }],
+      lab_reports: [],
+      referrals: []
+    },
+    {
+      id: "P013", name: "Shahbaz Khan", cnic: "21301-3344556-3", age: 48, gender: "Male",
+      blood_group: "A+", phone: "0333-3344556", city: "Peshawar", password: "patient123",
+      chronic_conditions: ["Hepatitis C", "Liver Cirrhosis"], allergies: ["Paracetamol overdose sensitivity"], surgeries: [],
+      visits: [{ date: "2026-05-15", doctor: "Dr. Imran Sheikh", specialization: "Gastroenterologist", symptoms: ["Jaundice", "Abdominal distension", "Fatigue", "Dark urine"], lab_results: ["ALT: 180 IU/L", "AST: 220 IU/L", "Bilirubin: 4.2 mg/dL", "HCV RNA: Detected"], diagnosis: "Active Hepatitis C with Compensated Cirrhosis", prescription: [{ medicine: "Sofosbuvir/Velpatasvir", dose: "400/100mg", frequency: "Once Daily for 12 weeks" }, { medicine: "Spironolactone", dose: "100mg", frequency: "Once Daily" }, { medicine: "Propranolol", dose: "20mg", frequency: "Twice Daily" }], notes: "Absolute alcohol abstinence. Avoid hepatotoxic drugs. Monthly LFT monitoring." }],
+      active_medications: [{ medicine: "Sofosbuvir/Velpatasvir", dose: "400/100mg", frequency: "Once Daily" }, { medicine: "Spironolactone", dose: "100mg", frequency: "Once Daily" }, { medicine: "Propranolol", dose: "20mg", frequency: "Twice Daily" }],
+      lab_reports: [{ date: "2026-05-15", report: "Liver Function Test", status: "Available" }, { date: "2026-05-15", report: "HCV RNA PCR", status: "Available" }, { date: "2026-05-15", report: "Abdominal Ultrasound", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P014", name: "Rukhsana Bibi", cnic: "42101-4455667-4", age: 65, gender: "Female",
+      blood_group: "B+", phone: "0300-4455667", city: "Karachi", password: "patient123",
+      chronic_conditions: ["Osteoporosis", "Diabetes Type 2"], allergies: [],
+      surgeries: [{ name: "Hip Replacement (Right)", date: "2024-01-20", hospital: "Aga Khan Hospital" }],
+      visits: [{ date: "2026-05-28", doctor: "Dr. Sara Malik", specialization: "Endocrinologist", symptoms: ["Back pain", "Height loss", "Difficulty walking"], lab_results: ["DEXA Scan T-score: -3.2", "Calcium: 7.8 mg/dL", "Vitamin D: 12 ng/mL"], diagnosis: "Severe Osteoporosis with Vitamin D Deficiency", prescription: [{ medicine: "Alendronate", dose: "70mg", frequency: "Once Weekly" }, { medicine: "Calcium Carbonate", dose: "1000mg", frequency: "Twice Daily with meals" }, { medicine: "Vitamin D3", dose: "50000 IU", frequency: "Once Weekly" }], notes: "Fall prevention measures at home. Weight bearing exercises. Regular DEXA follow up." }],
+      active_medications: [{ medicine: "Alendronate", dose: "70mg", frequency: "Once Weekly" }, { medicine: "Calcium Carbonate", dose: "1000mg", frequency: "Twice Daily" }, { medicine: "Vitamin D3", dose: "50000 IU", frequency: "Once Weekly" }, { medicine: "Metformin", dose: "500mg", frequency: "Twice Daily" }],
+      lab_reports: [{ date: "2026-05-28", report: "DEXA Scan", status: "Available" }, { date: "2026-05-28", report: "Bone Profile", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P015", name: "Usman Ghani", cnic: "42101-5566778-5", age: 22, gender: "Male",
+      blood_group: "O+", phone: "0311-5566778", city: "Karachi", password: "patient123",
+      chronic_conditions: [], allergies: [],
+      surgeries: [{ name: "Appendectomy", date: "2026-04-10", hospital: "Civil Hospital Karachi" }],
+      visits: [
+        { date: "2026-04-10", doctor: "Dr. Ahmed Khan", specialization: "General Physician", symptoms: ["Severe right lower abdominal pain", "Fever", "Vomiting", "Loss of appetite"], diagnosis: "Acute Appendicitis", prescription: [{ medicine: "Ceftriaxone", dose: "1g IV", frequency: "Twice Daily" }, { medicine: "Metronidazole", dose: "500mg IV", frequency: "Three times Daily" }], notes: "Urgent surgical referral. Surgery performed same day. Recovery uneventful." },
+        { date: "2026-04-20", doctor: "Dr. Ahmed Khan", specialization: "General Physician", symptoms: [], diagnosis: "Post-operative follow up — Normal Recovery", prescription: [{ medicine: "Augmentin", dose: "625mg", frequency: "Twice Daily for 7 days" }], notes: "Wound healing well. Full recovery in 4 weeks." }
+      ],
+      active_medications: [],
+      lab_reports: [{ date: "2026-04-10", report: "Abdominal Ultrasound", status: "Available" }, { date: "2026-04-10", report: "CBC Report", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P016", name: "Samina Akhtar", cnic: "42201-6677889-6", age: 40, gender: "Female",
+      blood_group: "A-", phone: "0322-6677889", city: "Karachi", password: "patient123",
+      chronic_conditions: ["Lupus (SLE)"], allergies: ["Sunlight sensitivity", "Sulfa drugs"], surgeries: [],
+      visits: [{ date: "2026-05-10", doctor: "Dr. Fatima Zahra", specialization: "Neurologist", symptoms: ["Joint pain", "Butterfly rash on face", "Fatigue", "Hair loss", "Mouth ulcers"], lab_results: ["ANA: Positive", "Anti-dsDNA: 1:640", "Complement C3: Low"], diagnosis: "Systemic Lupus Erythematosus - Active Flare", prescription: [{ medicine: "Hydroxychloroquine", dose: "200mg", frequency: "Twice Daily" }, { medicine: "Prednisolone", dose: "20mg", frequency: "Once Daily (tapering)" }, { medicine: "Mycophenolate", dose: "500mg", frequency: "Twice Daily" }], notes: "Strict sun protection. SPF 50+ sunscreen mandatory. Ophthalmology review for HCQ." }],
+      active_medications: [{ medicine: "Hydroxychloroquine", dose: "200mg", frequency: "Twice Daily" }, { medicine: "Prednisolone", dose: "10mg", frequency: "Once Daily" }, { medicine: "Mycophenolate", dose: "500mg", frequency: "Twice Daily" }],
+      lab_reports: [{ date: "2026-05-10", report: "ANA Panel", status: "Available" }, { date: "2026-05-10", report: "Complement Levels", status: "Available" }, { date: "2026-05-10", report: "Kidney Function Test", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P017", name: "Rizwan Ahmed", cnic: "42101-7788990-7", age: 50, gender: "Male",
+      blood_group: "B+", phone: "0345-7788990", city: "Karachi", password: "patient123",
+      chronic_conditions: ["Epilepsy"], allergies: ["Phenytoin"], surgeries: [],
+      visits: [{ date: "2026-05-05", doctor: "Dr. Fatima Zahra", specialization: "Neurologist", symptoms: ["Seizure episode lasting 3 minutes", "Post-ictal confusion", "Tongue bite"], diagnosis: "Breakthrough Seizure - Generalized Tonic-Clonic", prescription: [{ medicine: "Levetiracetam", dose: "1000mg", frequency: "Twice Daily" }, { medicine: "Sodium Valproate", dose: "500mg", frequency: "Twice Daily" }], notes: "Do not drive. Avoid heights and swimming alone. Medication compliance is critical. EEG repeated." }],
+      active_medications: [{ medicine: "Levetiracetam", dose: "1000mg", frequency: "Twice Daily" }, { medicine: "Sodium Valproate", dose: "500mg", frequency: "Twice Daily" }],
+      lab_reports: [{ date: "2026-05-05", report: "EEG Report", status: "Available" }, { date: "2026-05-05", report: "MRI Brain", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P018", name: "Hira Baig", cnic: "42301-8899001-8", age: 25, gender: "Female",
+      blood_group: "O-", phone: "0333-8899001", city: "Karachi", password: "patient123",
+      chronic_conditions: ["Psoriasis"], allergies: [], surgeries: [],
+      visits: [{ date: "2026-05-28", doctor: "Dr. Zara Ahmed", specialization: "Dermatologist", symptoms: ["Thick scaly patches on elbows and knees", "Itching", "Scalp involvement"], diagnosis: "Moderate Plaque Psoriasis", prescription: [{ medicine: "Betamethasone cream", dose: "0.05%", frequency: "Twice Daily on affected areas" }, { medicine: "Calcipotriol ointment", dose: "50mcg/g", frequency: "Once Daily" }, { medicine: "Cetrizine", dose: "10mg", frequency: "Once Daily at night" }], notes: "Avoid triggers: stress, skin injury, alcohol. Use moisturizer generously. Phototherapy considered." }],
+      active_medications: [{ medicine: "Betamethasone cream", dose: "0.05%", frequency: "Twice Daily" }, { medicine: "Calcipotriol ointment", dose: "50mcg/g", frequency: "Once Daily" }],
+      lab_reports: [],
+      referrals: []
+    },
+    {
+      id: "P019", name: "Ghulam Mustafa", cnic: "31101-9900112-9", age: 58, gender: "Male",
+      blood_group: "AB+", phone: "0300-9900112", city: "Multan", password: "patient123",
+      chronic_conditions: ["Prostate Enlargement (BPH)"], allergies: [], surgeries: [],
+      visits: [{ date: "2026-05-12", doctor: "Dr. Ahmed Khan", specialization: "General Physician", symptoms: ["Difficulty urinating", "Frequent night urination", "Weak urine stream", "Incomplete emptying"], lab_results: ["PSA: 3.8 ng/mL", "Post-void residual: 180 mL"], diagnosis: "Benign Prostatic Hyperplasia - Moderate", prescription: [{ medicine: "Tamsulosin", dose: "0.4mg", frequency: "Once Daily after meal" }, { medicine: "Finasteride", dose: "5mg", frequency: "Once Daily" }], notes: "Urology referral made. Avoid caffeine and alcohol in evenings. TURP may be needed if no improvement." }],
+      active_medications: [{ medicine: "Tamsulosin", dose: "0.4mg", frequency: "Once Daily" }, { medicine: "Finasteride", dose: "5mg", frequency: "Once Daily" }],
+      lab_reports: [{ date: "2026-05-12", report: "PSA Test", status: "Available" }, { date: "2026-05-12", report: "Prostate Ultrasound", status: "Available" }, { date: "2026-05-12", report: "Urine Flow Test", status: "Available" }],
+      referrals: [{ date: "2026-05-12", from: "Dr. Ahmed Khan", to: "Urologist", reason: "BPH management", notes: "Consider TURP if medical management fails." }]
+    },
+    {
+      id: "P020", name: "Amna Farooq", cnic: "42101-0011223-0", age: 29, gender: "Female",
+      blood_group: "A+", phone: "0321-0011223", city: "Karachi", password: "patient123",
+      chronic_conditions: [], allergies: [], surgeries: [],
+      visits: [{ date: "2026-06-05", doctor: "Dr. Aisha Siddiqui", specialization: "Gynecologist", symptoms: ["Missed period 8 weeks", "Nausea", "Breast tenderness", "Fatigue"], lab_results: ["Beta hCG: 45000 mIU/mL", "Ultrasound: Single viable fetus, 8 weeks"], diagnosis: "Confirmed Intrauterine Pregnancy - 8 Weeks", prescription: [{ medicine: "Folic Acid", dose: "5mg", frequency: "Once Daily" }, { medicine: "Iron + Folic Acid supplement", dose: "1 tablet", frequency: "Once Daily" }, { medicine: "Vitamin D3", dose: "1000 IU", frequency: "Once Daily" }], notes: "Antenatal care initiated. Next scan at 12 weeks." }],
+      active_medications: [{ medicine: "Folic Acid", dose: "5mg", frequency: "Once Daily" }, { medicine: "Iron + Folic Acid", dose: "1 tablet", frequency: "Once Daily" }, { medicine: "Vitamin D3", dose: "1000 IU", frequency: "Once Daily" }],
+      lab_reports: [{ date: "2026-06-05", report: "Pregnancy Ultrasound", status: "Available" }, { date: "2026-06-05", report: "Blood Group & Rhesus", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P021", name: "Asif Mehmood", cnic: "35401-1234123-1", age: 44, gender: "Male",
+      blood_group: "O+", phone: "0300-1234123", city: "Faisalabad", password: "patient123",
+      chronic_conditions: ["Type 1 Diabetes"], allergies: [], surgeries: [],
+      visits: [{ date: "2026-05-20", doctor: "Dr. Sara Malik", specialization: "Endocrinologist", symptoms: ["Hypoglycemic episodes", "Shakiness", "Sweating", "Confusion"], lab_results: ["HbA1c: 6.1%", "Fasting Blood Sugar: 65 mg/dL"], diagnosis: "Type 1 Diabetes - Hypoglycemia Episodes", prescription: [{ medicine: "Insulin Glargine", dose: "20 units", frequency: "Once Daily at bedtime" }, { medicine: "Insulin Lispro", dose: "6 units", frequency: "Before each meal" }, { medicine: "Glucagon Kit", dose: "1mg", frequency: "Emergency use only" }], notes: "Continuous glucose monitoring recommended. Always carry glucose tablets." }],
+      active_medications: [{ medicine: "Insulin Glargine", dose: "20 units", frequency: "Once Daily" }, { medicine: "Insulin Lispro", dose: "6 units", frequency: "Before each meal" }],
+      lab_reports: [{ date: "2026-05-20", report: "HbA1c Test", status: "Available" }, { date: "2026-05-20", report: "Continuous Glucose Monitor Data", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P022", name: "Bushra Malik", cnic: "42101-2345234-2", age: 33, gender: "Female",
+      blood_group: "B-", phone: "0312-2345234", city: "Karachi", password: "patient123",
+      chronic_conditions: ["Celiac Disease"], allergies: ["Gluten", "Wheat"], surgeries: [],
+      visits: [{ date: "2026-04-25", doctor: "Dr. Imran Sheikh", specialization: "Gastroenterologist", symptoms: ["Chronic diarrhea", "Bloating", "Weight loss", "Abdominal cramps", "Mouth sores"], lab_results: ["Anti-tTG IgA: 145 U/mL (High)", "Duodenal biopsy: Villous atrophy confirmed"], diagnosis: "Celiac Disease - Active", prescription: [{ medicine: "Strict Gluten Free Diet", dose: "-", frequency: "Lifelong" }, { medicine: "Iron Supplement", dose: "200mg", frequency: "Once Daily" }, { medicine: "Calcium + Vitamin D", dose: "1 tablet", frequency: "Once Daily" }], notes: "Dietitian referral made. Gluten free diet is the only treatment. Read all food labels carefully." }],
+      active_medications: [{ medicine: "Iron Supplement", dose: "200mg", frequency: "Once Daily" }, { medicine: "Calcium + Vitamin D", dose: "1 tablet", frequency: "Once Daily" }],
+      lab_reports: [{ date: "2026-04-25", report: "Anti-tTG Antibody Test", status: "Available" }, { date: "2026-04-25", report: "Duodenal Biopsy Report", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P023", name: "Naseer Ullah", cnic: "11201-3456345-3", age: 70, gender: "Male",
+      blood_group: "A+", phone: "0300-3456345", city: "Quetta", password: "patient123",
+      chronic_conditions: ["Parkinson's Disease", "Hypertension"], allergies: [], surgeries: [],
+      visits: [{ date: "2026-05-08", doctor: "Dr. Fatima Zahra", specialization: "Neurologist", symptoms: ["Tremor in hands", "Slowness of movement", "Stiff muscles", "Balance problems", "Soft speech"], diagnosis: "Parkinson's Disease - Moderate Stage", prescription: [{ medicine: "Levodopa/Carbidopa", dose: "250/25mg", frequency: "Three times Daily" }, { medicine: "Pramipexole", dose: "0.5mg", frequency: "Three times Daily" }, { medicine: "Amantadine", dose: "100mg", frequency: "Twice Daily" }], notes: "Physiotherapy and speech therapy essential. Fall prevention. Occupational therapy referral. Family counseling." }],
+      active_medications: [{ medicine: "Levodopa/Carbidopa", dose: "250/25mg", frequency: "Three times Daily" }, { medicine: "Pramipexole", dose: "0.5mg", frequency: "Three times Daily" }, { medicine: "Amlodipine", dose: "5mg", frequency: "Once Daily" }],
+      lab_reports: [{ date: "2026-05-08", report: "MRI Brain", status: "Available" }, { date: "2026-05-08", report: "DaT Scan", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P024", name: "Rabia Anwar", cnic: "42101-4567456-4", age: 27, gender: "Female",
+      blood_group: "O+", phone: "0322-4567456", city: "Karachi", password: "patient123",
+      chronic_conditions: [], allergies: ["Latex"], surgeries: [],
+      visits: [{ date: "2026-06-03", doctor: "Dr. Zara Ahmed", specialization: "Dermatologist", symptoms: ["Acne on face and back", "Oily skin", "Cysts and nodules"], diagnosis: "Severe Nodular Acne", prescription: [{ medicine: "Isotretinoin", dose: "20mg", frequency: "Once Daily with meal" }, { medicine: "Clindamycin gel", dose: "1%", frequency: "Once Daily at night" }], notes: "Mandatory pregnancy test before starting Isotretinoin. Monthly pregnancy tests during treatment." }],
+      active_medications: [{ medicine: "Isotretinoin", dose: "20mg", frequency: "Once Daily" }, { medicine: "Clindamycin gel", dose: "1%", frequency: "Once Daily" }],
+      lab_reports: [{ date: "2026-06-03", report: "Pregnancy Test", status: "Available" }, { date: "2026-06-03", report: "Liver Function Test", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P025", name: "Junaid Raza", cnic: "42501-5678567-5", age: 35, gender: "Male",
+      blood_group: "B+", phone: "0311-5678567", city: "Karachi", password: "patient123",
+      chronic_conditions: ["Peptic Ulcer Disease"], allergies: ["NSAIDs"], surgeries: [],
+      visits: [{ date: "2026-05-18", doctor: "Dr. Imran Sheikh", specialization: "Gastroenterologist", symptoms: ["Burning stomach pain", "Pain worse on empty stomach", "Nausea", "Black stools"], lab_results: ["H. pylori breath test: Positive", "Endoscopy: Duodenal ulcer 1.2cm"], diagnosis: "H. Pylori Positive Duodenal Ulcer", prescription: [{ medicine: "Omeprazole", dose: "40mg", frequency: "Twice Daily" }, { medicine: "Amoxicillin", dose: "1g", frequency: "Twice Daily" }, { medicine: "Clarithromycin", dose: "500mg", frequency: "Twice Daily" }], notes: "Triple therapy for 14 days. Avoid NSAIDs, alcohol, spicy food, smoking." }],
+      active_medications: [{ medicine: "Omeprazole", dose: "40mg", frequency: "Twice Daily" }, { medicine: "Amoxicillin", dose: "1g", frequency: "Twice Daily" }, { medicine: "Clarithromycin", dose: "500mg", frequency: "Twice Daily" }],
+      lab_reports: [{ date: "2026-05-18", report: "H. Pylori Breath Test", status: "Available" }, { date: "2026-05-18", report: "Upper GI Endoscopy", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P026", name: "Saima Nawaz", cnic: "42101-6789678-6", age: 38, gender: "Female",
+      blood_group: "AB-", phone: "0300-6789678", city: "Karachi", password: "patient123",
+      chronic_conditions: ["Multiple Sclerosis"], allergies: [], surgeries: [],
+      visits: [{ date: "2026-04-20", doctor: "Dr. Fatima Zahra", specialization: "Neurologist", symptoms: ["Blurred vision", "Weakness in left leg", "Tingling and numbness", "Fatigue", "Balance issues"], lab_results: ["MRI: Multiple demyelinating plaques", "CSF: Oligoclonal bands positive"], diagnosis: "Multiple Sclerosis - Relapsing Remitting", prescription: [{ medicine: "Interferon Beta-1a", dose: "30mcg IM", frequency: "Once Weekly" }, { medicine: "Methylprednisolone", dose: "1g IV", frequency: "Once Daily for 5 days (acute relapse)" }, { medicine: "Baclofen", dose: "10mg", frequency: "Three times Daily" }], notes: "Physiotherapy ongoing. Ophthalmology referral for vision. Heat avoidance important." }],
+      active_medications: [{ medicine: "Interferon Beta-1a", dose: "30mcg", frequency: "Once Weekly" }, { medicine: "Baclofen", dose: "10mg", frequency: "Three times Daily" }],
+      lab_reports: [{ date: "2026-04-20", report: "MRI Brain and Spine", status: "Available" }, { date: "2026-04-20", report: "CSF Analysis", status: "Available" }, { date: "2026-04-20", report: "Visual Evoked Potential", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P027", name: "Aamir Sohail", cnic: "42101-7890789-7", age: 30, gender: "Male",
+      blood_group: "O-", phone: "0321-7890789", city: "Karachi", password: "patient123",
+      chronic_conditions: [], allergies: [],
+      surgeries: [{ name: "ACL Reconstruction (Right Knee)", date: "2025-11-05", hospital: "South City Hospital" }],
+      visits: [{ date: "2026-05-25", doctor: "Dr. Usman Tariq", specialization: "Orthopedic Surgeon", symptoms: ["Knee stiffness", "Pain during exercise", "Slight swelling"], diagnosis: "Post ACL Reconstruction - Rehabilitation Phase", prescription: [{ medicine: "Diclofenac gel", dose: "1%", frequency: "Twice Daily on knee" }, { medicine: "Physiotherapy", dose: "-", frequency: "3 times per week" }], notes: "6 months post-op. Good ligament healing on MRI. Return to sport in 3 months." }],
+      active_medications: [{ medicine: "Diclofenac gel", dose: "1%", frequency: "Twice Daily" }],
+      lab_reports: [{ date: "2026-05-25", report: "MRI Right Knee", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P028", name: "Khurshid Alam", cnic: "42201-8901890-8", age: 63, gender: "Male",
+      blood_group: "A+", phone: "0333-8901890", city: "Karachi", password: "patient123",
+      chronic_conditions: ["Chronic Heart Failure", "Atrial Fibrillation"], allergies: ["ACE inhibitors (cough)"],
+      surgeries: [{ name: "Pacemaker Implantation", date: "2022-06-18", hospital: "National Institute of Cardiovascular Diseases" }],
+      visits: [{ date: "2026-06-02", doctor: "Dr. Bilal Hussain", specialization: "Cardiologist", symptoms: ["Shortness of breath lying flat", "Swollen ankles", "Palpitations", "Fatigue on minimal exertion"], vitals: { blood_pressure: "100/70 mmHg", pulse: "irregular 78 bpm", oxygen_saturation: "93%" }, lab_results: ["BNP: 890 pg/mL", "Echocardiogram: EF 30%"], diagnosis: "Decompensated Heart Failure with AF", prescription: [{ medicine: "Furosemide", dose: "80mg", frequency: "Once Daily" }, { medicine: "Spironolactone", dose: "25mg", frequency: "Once Daily" }, { medicine: "Carvedilol", dose: "6.25mg", frequency: "Twice Daily" }, { medicine: "Warfarin", dose: "3mg", frequency: "Once Daily (INR guided)" }, { medicine: "Sacubitril/Valsartan", dose: "24/26mg", frequency: "Twice Daily" }], notes: "Daily weight monitoring. Fluid restriction 1.5L/day. Salt restriction." }],
+      active_medications: [{ medicine: "Furosemide", dose: "80mg", frequency: "Once Daily" }, { medicine: "Spironolactone", dose: "25mg", frequency: "Once Daily" }, { medicine: "Carvedilol", dose: "6.25mg", frequency: "Twice Daily" }, { medicine: "Warfarin", dose: "3mg", frequency: "Once Daily" }, { medicine: "Sacubitril/Valsartan", dose: "24/26mg", frequency: "Twice Daily" }],
+      lab_reports: [{ date: "2026-06-02", report: "Echocardiogram", status: "Available" }, { date: "2026-06-02", report: "BNP Level", status: "Available" }, { date: "2026-06-02", report: "INR Test", status: "Available" }, { date: "2026-06-02", report: "Pacemaker Interrogation", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P029", name: "Tahira Qasim", cnic: "42101-9012901-9", age: 56, gender: "Female",
+      blood_group: "B+", phone: "0345-9012901", city: "Karachi", password: "patient123",
+      chronic_conditions: ["Breast Cancer (Remission)", "Lymphedema"], allergies: [],
+      surgeries: [{ name: "Left Mastectomy", date: "2023-03-15", hospital: "Aga Khan Hospital" }, { name: "Sentinel Lymph Node Biopsy", date: "2023-03-15", hospital: "Aga Khan Hospital" }],
+      visits: [{ date: "2026-05-30", doctor: "Dr. Ahmed Khan", specialization: "General Physician", symptoms: ["Arm swelling", "Heaviness in left arm"], diagnosis: "Lymphedema Post Mastectomy - Stable. Breast Cancer in Complete Remission", prescription: [{ medicine: "Tamoxifen", dose: "20mg", frequency: "Once Daily (5 year course)" }, { medicine: "Compression sleeve", dose: "-", frequency: "Daily use" }], notes: "Annual mammogram of right breast due. Oncology review scheduled." }],
+      active_medications: [{ medicine: "Tamoxifen", dose: "20mg", frequency: "Once Daily" }],
+      lab_reports: [{ date: "2026-05-30", report: "Tumour Markers (CA 15-3)", status: "Available" }, { date: "2026-05-30", report: "Mammogram Right Breast", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P030", name: "Faisal Zuberi", cnic: "42601-0123012-0", age: 41, gender: "Male",
+      blood_group: "O+", phone: "0311-0123012", city: "Karachi", password: "patient123",
+      chronic_conditions: ["HIV Positive", "Tuberculosis (Treatment Complete)"], allergies: ["Efavirenz (neuropsychiatric side effects)"], surgeries: [],
+      visits: [{ date: "2026-05-25", doctor: "Dr. Ahmed Khan", specialization: "General Physician", symptoms: ["Night sweats", "Weight loss", "Chronic fatigue"], lab_results: ["CD4 Count: 420 cells/mm3", "HIV Viral Load: Undetectable"], diagnosis: "HIV - Virologically Suppressed on ART", prescription: [{ medicine: "Tenofovir/Emtricitabine/Dolutegravir", dose: "1 tablet", frequency: "Once Daily" }], notes: "Excellent viral suppression. Continue current ART. 6-monthly CD4 and viral load monitoring." }],
+      active_medications: [{ medicine: "Tenofovir/Emtricitabine/Dolutegravir", dose: "1 tablet", frequency: "Once Daily" }],
+      lab_reports: [{ date: "2026-05-25", report: "CD4 Count", status: "Available" }, { date: "2026-05-25", report: "HIV Viral Load", status: "Available" }, { date: "2026-05-25", report: "Full Blood Count", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P031", name: "Zara Siddiqui", cnic: "42101-1357913-1", age: 16, gender: "Female",
+      blood_group: "A-", phone: "0300-1357913", city: "Karachi", password: "patient123",
+      chronic_conditions: ["Type 1 Diabetes", "Celiac Disease"], allergies: ["Gluten"], surgeries: [],
+      visits: [{ date: "2026-06-04", doctor: "Dr. Sara Malik", specialization: "Endocrinologist", symptoms: ["Blood sugar fluctuations", "Fatigue", "Difficulty concentrating in school"], lab_results: ["HbA1c: 7.8%"], diagnosis: "Type 1 Diabetes - Suboptimal Control", prescription: [{ medicine: "Insulin Pump Therapy", dose: "Continuous", frequency: "24 hours" }, { medicine: "Continuous Glucose Monitor", dose: "-", frequency: "Ongoing" }], notes: "School nurse informed. Glucagon kit at school. Gluten free diet maintained." }],
+      active_medications: [{ medicine: "Insulin (via pump)", dose: "Continuous", frequency: "24 hours" }],
+      lab_reports: [{ date: "2026-06-04", report: "HbA1c Test", status: "Available" }, { date: "2026-06-04", report: "CGM Report", status: "Available" }],
+      referrals: []
+    },
+    {
+      id: "P032", name: "Omar Farhan", cnic: "42101-2468024-2", age: 24, gender: "Male",
+      blood_group: "B+", phone: "0312-2468024", city: "Karachi", password: "patient123",
+      chronic_conditions: [], allergies: [], surgeries: [],
+      visits: [{ date: "2026-06-06", doctor: "Dr. Ahmed Khan", specialization: "General Physician", symptoms: ["High fever 39.5°C", "Body aches", "Headache", "Retro-orbital pain", "Rash on torso"], lab_results: ["Dengue NS1: Positive", "Platelets: 68,000/µL", "WBC: 2800/µL"], diagnosis: "Dengue Fever - Warning Signs Present", prescription: [{ medicine: "Paracetamol", dose: "1g", frequency: "Every 6 hours" }, { medicine: "ORS", dose: "2-3 Litres", frequency: "Daily" }], notes: "Admitted for observation. IV fluids started. Daily platelet count. Avoid NSAIDs strictly." }],
+      active_medications: [{ medicine: "Paracetamol", dose: "1g", frequency: "Every 6 hours" }],
+      lab_reports: [{ date: "2026-06-06", report: "Dengue NS1 Antigen Test", status: "Available" }, { date: "2026-06-06", report: "Complete Blood Count", status: "Available" }],
+      referrals: []
+    }
+  ]
+};
+
+window.seed = async function() {
+  const btn = document.getElementById('seedBtn');
+  const log = document.getElementById('log');
+  btn.disabled = true;
+  btn.textContent = 'Seeding...';
+  log.innerHTML = '';
+
+  try {
+    log.innerHTML += `<div class="section">── Seeding Doctors ──</div>`;
+    for (const doctor of shifaaDatabase.doctors) {
+      await setDoc(doc(db, "doctors", doctor.id), doctor);
+      log.innerHTML += `<div class="ok">✅ Doctor: ${doctor.name} (PMDC: ${doctor.pmdc})</div>`;
+    }
+
+    log.innerHTML += `<div class="section">── Seeding Labs ──</div>`;
+    for (const lab of shifaaDatabase.labs) {
+      await setDoc(doc(db, "labs", lab.id), lab);
+      log.innerHTML += `<div class="ok">✅ Lab: ${lab.name} (${lab.city})</div>`;
+    }
+
+    log.innerHTML += `<div class="section">── Seeding Patients ──</div>`;
+    for (const patient of shifaaDatabase.patients) {
+      await setDoc(doc(db, "patients", patient.cnic), patient);
+      log.innerHTML += `<div class="ok">✅ Patient: ${patient.name} (${patient.cnic})</div>`;
+    }
+
+    log.innerHTML += `<div class="done">🎉 Done! ${shifaaDatabase.doctors.length} doctors, ${shifaaDatabase.labs.length} labs, and ${shifaaDatabase.patients.length} patients loaded into Firebase.</div>`;
+    btn.textContent = '✅ Seeded!';
+  } catch(e) {
+    log.innerHTML += `<div class="err">❌ Error: ${e.message}</div>`;
+    btn.disabled = false;
+    btn.textContent = 'Retry';
+  }
+};
+</script>
+</body>
+</html>

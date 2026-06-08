@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shifaa – Register</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Mulish:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0b3d52;
+      --teal: #0b7a75;
+      --teal-mid: #0e9e98;
+      --teal-light: #e6f5f4;
+      --accent: #e05c2a;
+      --accent-light: #fdf0eb;
+      --gold: #c4960e;
+      --text: #0f1f28;
+      --text-mid: #3a5060;
+      --text-muted: #7a90a0;
+      --border: #dce8ec;
+      --bg: #f2f6f8;
+      --card: #ffffff;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Mulish', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── NAV (identical to login) ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 0 48px;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(11, 61, 82, 0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      letter-spacing: 4px;
+      text-decoration: none;
+    }
+    .logo em { color: #5ecfef; font-style: normal; }
+    .nav-links { display: flex; align-items: center; gap: 10px; }
+    .nav-link {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      transition: 0.2s;
+    }
+    .nav-link:hover { color: white; background: rgba(255,255,255,0.1); }
+
+    /* ── HERO WRAPPER (identical gradient to login) ── */
+    .hero {
+      min-height: 100vh;
+      background: linear-gradient(155deg, #0b3d52 0%, #0b5c5c 50%, #083a3a 100%);
+      display: flex;
+      align-items: flex-start;
+      padding: 0 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(94,207,239,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(94,207,239,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -20%; right: -10%;
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(11,122,117,0.35) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── INNER LAYOUT ── */
+    .hero-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 480px;
+      gap: 60px;
+      align-items: start;
+      position: relative;
+      z-index: 2;
+      padding-top: 96px;
+      padding-bottom: 60px;
+    }
+
+    /* ── LEFT INFO PANEL ── */
+    .hero-left { color: white; position: sticky; top: 96px; }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #5ecfef;
+      margin-bottom: 28px;
+      animation: fadeUp 0.5s ease both;
+    }
+    .hero-badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #5ecfef;
+      animation: pulse 2s ease infinite;
+    }
+
+    .role-info { display: none; }
+    .role-info.active { display: block; animation: fadeUp 0.3s ease both; }
+
+    .role-info h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(28px, 3vw, 40px);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 16px;
+      color: white;
+    }
+    .role-info h2 em { font-style: italic; color: #5ecfef; }
+    .role-info > p {
+      font-size: 15px;
+      line-height: 1.75;
+      color: rgba(255,255,255,0.65);
+      max-width: 420px;
+      margin-bottom: 40px;
+    }
+
+    .benefits { display: flex; flex-direction: column; gap: 18px; }
+    .benefit { display: flex; align-items: flex-start; gap: 14px; }
+    .benefit-icon {
+      width: 40px; height: 40px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .benefit-text strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 3px;
+    }
+    .benefit-text span {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.5;
+    }
+
+    /* ── RIGHT: REGISTER CARD (same style as login-card) ── */
+    .register-card {
+      background: white;
+      border-radius: 20px;
+      padding: 36px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.1);
+      animation: fadeUp 0.5s ease 0.15s both;
+    }
+
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 4px;
+    }
+    .card-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    /* ── PORTAL TOGGLE (identical to login) ── */
+    .portal-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 24px;
+      border: 1px solid var(--border);
+    }
+    .ptoggle {
+      padding: 9px 4px;
+      border: none;
+      border-radius: 7px;
+      background: transparent;
+      font-family: 'Mulish', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .ptoggle.active {
+      background: var(--navy);
+      color: white;
+      box-shadow: 0 2px 8px rgba(11,61,82,0.25);
+    }
+
+    /* ── FORM CARDS ── */
+    .form-card { display: none; }
+    .form-card.active { display: block; }
+
+    /* Section labels inside card */
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--teal);
+      margin: 20px 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-label:first-of-type { margin-top: 0; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .full-width { grid-column: span 2; }
+
+    /* Fields — identical to login */
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--text-mid);
+    }
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: 'Mulish', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      transition: 0.2s;
+      background: var(--bg);
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--teal);
+      background: white;
+      box-shadow: 0 0 0 3px var(--teal-light);
+    }
+    .field input::placeholder { color: var(--text-muted); }
+
+    /* Info box */
+    .info-box {
+      background: var(--teal-light);
+      border-left: 3px solid var(--teal);
+      padding: 11px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #0b5a56;
+      font-weight: 600;
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    /* Submit button — identical to login */
+    .submit-btn {
+      width: 100%;
+      background: var(--navy);
+      color: white;
+      border: none;
+      padding: 13px;
+      border-radius: 8px;
+      font-family: 'Mulish', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: 0.2s;
+      letter-spacing: 0.3px;
+    }
+    .submit-btn:hover {
+      background: #0a2f40;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(11,61,82,0.3);
+    }
+    .submit-btn:active { transform: translateY(0); }
+
+    /* Messages */
+    .msg {
+      border-radius: 7px;
+      padding: 9px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 12px;
+      display: none;
+    }
+    .msg.error { display: block; background: #fdecea; color: #c0392b; }
+    .msg.success { display: block; background: #e8f5ee; color: #1a7a4a; }
+
+    .login-prompt {
+      text-align: center;
+      margin-top: 18px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .login-prompt a {
+      color: var(--teal);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .login-prompt a:hover { text-decoration: underline; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 0 20px; }
+      .hero { padding: 0 20px; }
+      .hero-inner {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        padding-top: 80px;
+        padding-bottom: 40px;
+      }
+      .hero-left { position: static; }
+      .form-grid { grid-template-columns: 1fr; }
+      .full-width { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo">SHI<em>FAA</em></a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">← Back to Login</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+
+    <!-- LEFT: dynamic info panel -->
+    <div class="hero-left">
+      <div class="hero-badge"><div class="dot"></div> Free to Join</div>
+
+      <div id="info-patient" class="role-info active">
+        <h2>Your health record,<br>built for <em>life.</em></h2>
+        <p>Register once with your CNIC. Every doctor in Pakistan can access your complete history securely and instantly.</p>
+        <div class="benefits">
+          <div class="benefit"><div class="benefit-icon">🆔</div><div class="benefit-text"><strong>CNIC-Linked Identity</strong><span>One record, works nationwide from Karachi to Gilgit</span></div></div>
+          <div class="benefit"><div class="benefit-icon">🔒</div><div class="benefit-text"><strong>Private by Default</strong><span>Only your treating doctor can see your records</span></div></div>
+          <div class="benefit"><div class="benefit-icon">💊</div><div class="benefit-text"><strong>Digital Prescriptions</strong><span>Signed, downloadable prescriptions saved permanently</span></div></div>
+          <div class="benefit"><div class="benefit-icon">🚨</div><div class="benefit-text"><strong>Emergency Ready</strong><span>Blood group and allergies visible when it matters most</span></div></div>
+        </div>
+      </div>
+
+      <div id="info-doctor" class="role-info">
+        <h2>Join Pakistan's <em>verified</em><br>doctor network.</h2>
+        <p>PMDC-verified profile. Access any patient's full history in one search. Write digital prescriptions instantly.</p>
+        <div class="benefits">
+          <div class="benefit"><div class="benefit-icon">✅</div><div class="benefit-text"><strong>PMDC Verified</strong><span>Only verified doctors can issue prescriptions on Shifaa</span></div></div>
+          <div class="benefit"><div class="benefit-icon">📋</div><div class="benefit-text"><strong>Instant Patient History</strong><span>Full record available before the patient walks in</span></div></div>
+          <div class="benefit"><div class="benefit-icon">🔀</div><div class="benefit-text"><strong>Seamless Referrals</strong><span>Full notes travel with every referral automatically</span></div></div>
+          <div class="benefit"><div class="benefit-icon">📄</div><div class="benefit-text"><strong>Digital Prescriptions</strong><span>Tamper-proof, signed, downloadable as PDF</span></div></div>
+        </div>
+      </div>
+
+      <div id="info-lab" class="role-info">
+        <h2>Connect your lab<br>to <em>Shifaa.</em></h2>
+        <p>Upload reports directly to patient and doctor portals. No paper, no delay, no lost results — ever.</p>
+        <div class="benefits">
+          <div class="benefit"><div class="benefit-icon">🧪</div><div class="benefit-text"><strong>Direct Upload</strong><span>Reports appear on both portals the moment you upload</span></div></div>
+          <div class="benefit"><div class="benefit-icon">🔐</div><div class="benefit-text"><strong>Verified Labs Only</strong><span>Only registered labs can send reports to Shifaa</span></div></div>
+          <div class="benefit"><div class="benefit-icon">📡</div><div class="benefit-text"><strong>Real-Time Delivery</strong><span>No paper, no courier, no delay</span></div></div>
+          <div class="benefit"><div class="benefit-icon">📊</div><div class="benefit-text"><strong>CNIC-Linked Reports</strong><span>Reports auto-attach to the correct patient record</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: register card -->
+    <div class="register-card">
+
+      <div class="card-title">Create Account</div>
+      <div class="card-sub">Free, permanent, and secured by Shifaa.</div>
+
+      <!-- Toggle — same as login portal toggle -->
+      <div class="portal-toggle">
+        <button class="ptoggle active" data-role="patient">🧑 Patient</button>
+        <button class="ptoggle" data-role="doctor">🩺 Doctor</button>
+        <button class="ptoggle" data-role="lab">🧪 Lab</button>
+      </div>
+
+      <!-- ── PATIENT FORM ── -->
+      <div id="form-patient" class="form-card active">
+        <div class="section-label">Personal Information</div>
+        <div class="form-grid">
+          <div class="field full-width"><label>Full Name</label><input type="text" id="p-name" placeholder="e.g., Muhammad Ali"></div>
+          <div class="field"><label>CNIC</label><input type="text" id="p-cnic" placeholder="42101-1234567-8"></div>
+          <div class="field"><label>Phone</label><input type="text" id="p-phone" placeholder="0312-1234567"></div>
+          <div class="field"><label>Age</label><input type="number" id="p-age" placeholder="e.g., 34"></div>
+          <div class="field"><label>Gender</label><select id="p-gender"><option>Male</option><option>Female</option></select></div>
+          <div class="field"><label>Blood Group</label><select id="p-blood"><option value="">— Select —</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div>
+          <div class="field"><label>City</label><input type="text" id="p-city" placeholder="e.g., Karachi"></div>
+          <div class="field"><label>Password</label><input type="password" id="p-pass" placeholder="Create a password"></div>
+        </div>
+        <div class="section-label">Medical Info <span style="font-weight:400;text-transform:none;letter-spacing:0;">(Optional)</span></div>
+        <div class="form-grid">
+          <div class="field full-width"><label>Known Allergies (comma separated)</label><input type="text" id="p-allergies" placeholder="e.g., Penicillin, Aspirin"></div>
+          <div class="field full-width"><label>Chronic Conditions (comma separated)</label><input type="text" id="p-conditions" placeholder="e.g., Diabetes Type 2, Hypertension"></div>
+        </div>
+        <button class="submit-btn" onclick="registerPatient()">Create My Health Record →</button>
+        <div id="p-msg" class="msg"></div>
+        <div class="login-prompt">Already registered? <a href="index.html">Sign in →</a></div>
+      </div>
+
+      <!-- ── DOCTOR FORM ── -->
+      <div id="form-doctor" class="form-card">
+        <div class="info-box">ℹ️ Your PMDC number will be verified before your profile goes live. Unverified doctors cannot issue prescriptions.</div>
+        <div class="section-label">Professional Information</div>
+        <div class="form-grid">
+          <div class="field full-width"><label>Full Name</label><input type="text" id="d-name" placeholder="e.g., Dr. Sara Malik"></div>
+          <div class="field"><label>PMDC Number</label><input type="text" id="d-pmdc" placeholder="e.g., 12345"></div>
+          <div class="field"><label>Specialization</label><select id="d-spec"><option value="">— Select —</option><option>General Physician</option><option>Cardiologist</option><option>Endocrinologist</option><option>Neurologist</option><option>Orthopedic Surgeon</option><option>Gynecologist</option><option>Pulmonologist</option><option>Dermatologist</option><option>Gastroenterologist</option><option>Psychiatrist</option><option>Pediatrician</option><option>Urologist</option><option>Oncologist</option><option>Nephrologist</option><option>Other</option></select></div>
+          <div class="field full-width"><label>Hospital / Clinic Name</label><input type="text" id="d-hospital" placeholder="e.g., Aga Khan Hospital, Karachi"></div>
+          <div class="field"><label>City</label><input type="text" id="d-city" placeholder="e.g., Karachi"></div>
+          <div class="field"><label>Phone</label><input type="text" id="d-phone" placeholder="0300-1234567"></div>
+        </div>
+        <div class="section-label">Account Credentials</div>
+        <div class="form-grid">
+          <div class="field full-width"><label>Email Address</label><input type="email" id="d-email" placeholder="doctor@hospital.pk"></div>
+          <div class="field"><label>Password</label><input type="password" id="d-pass" placeholder="Create a password"></div>
+          <div class="field"><label>Confirm Password</label><input type="password" id="d-pass2" placeholder="Repeat password"></div>
+        </div>
+        <button class="submit-btn" onclick="registerDoctor()">Register Doctor Profile →</button>
+        <div id="d-msg" class="msg"></div>
+        <div class="login-prompt">Already registered? <a href="index.html">Sign in →</a></div>
+      </div>
+
+      <!-- ── LAB FORM ── -->
+      <div id="form-lab" class="form-card">
+        <div class="info-box">ℹ️ Only verified labs can upload reports to Shifaa portals. Your application will be reviewed within 48 hours.</div>
+        <div class="section-label">Lab Information</div>
+        <div class="form-grid">
+          <div class="field full-width"><label>Lab / Diagnostic Centre Name</label><input type="text" id="l-name" placeholder="e.g., Essa Laboratory"></div>
+          <div class="field"><label>Registration / License No.</label><input type="text" id="l-regno" placeholder="e.g., DRAP-12345"></div>
+          <div class="field"><label>City</label><input type="text" id="l-city" placeholder="e.g., Karachi"></div>
+          <div class="field full-width"><label>Full Address</label><input type="text" id="l-address" placeholder="Street, Area, City"></div>
+          <div class="field"><label>Contact Number</label><input type="text" id="l-phone" placeholder="021-1234567"></div>
+          <div class="field"><label>Lab Type</label><select id="l-type"><option value="">— Select —</option><option>Pathology / Blood Tests</option><option>Radiology / Imaging</option><option>Microbiology</option><option>Histopathology</option><option>Full Diagnostic Centre</option><option>Other</option></select></div>
+        </div>
+        <div class="section-label">Account Credentials</div>
+        <div class="form-grid">
+          <div class="field full-width"><label>Official Email</label><input type="email" id="l-email" placeholder="lab@diagnostic.pk"></div>
+          <div class="field"><label>Password</label><input type="password" id="l-pass" placeholder="Create a password"></div>
+          <div class="field"><label>Confirm Password</label><input type="password" id="l-pass2" placeholder="Repeat password"></div>
+        </div>
+        <button class="submit-btn" onclick="registerLab()">Submit Lab Application →</button>
+        <div id="l-msg" class="msg"></div>
+        <div class="login-prompt">Already registered? <a href="index.html">Sign in →</a></div>
+      </div>
+
+    </div><!-- /register-card -->
+  </div><!-- /hero-inner -->
+</div><!-- /hero -->
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs }
+    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCWnb5WA8GHS3Ez_nEpVKbGJox6dGEdYOg",
+    authDomain: "shifaa-2fb18.firebaseapp.com",
+    projectId: "shifaa-2fb18",
+    storageBucket: "shifaa-2fb18.firebasestorage.app",
+    messagingSenderId: "535826100759",
+    appId: "1:535826100759:web:d31fa59255923dc6636252"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  /* ── Toggle ── */
+  const toggleBtns = document.querySelectorAll('.ptoggle');
+  const infoPanels = {
+    patient: document.getElementById('info-patient'),
+    doctor:  document.getElementById('info-doctor'),
+    lab:     document.getElementById('info-lab')
+  };
+  const formCards = {
+    patient: document.getElementById('form-patient'),
+    doctor:  document.getElementById('form-doctor'),
+    lab:     document.getElementById('form-lab')
+  };
+
+  function setActiveRole(role) {
+    toggleBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.role === role));
+    Object.keys(infoPanels).forEach(r => infoPanels[r].classList.toggle('active', r === role));
+    Object.keys(formCards).forEach(r => formCards[r].classList.toggle('active', r === role));
+  }
+
+  toggleBtns.forEach(btn => btn.addEventListener('click', () => setActiveRole(btn.dataset.role)));
+
+  /* ── Helper ── */
+  function showMsg(id, text, type) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = `msg ${type}`;
+  }
+
+  /* ── Patient ── */
+  window.registerPatient = async () => {
+    const name   = document.getElementById('p-name').value.trim();
+    const cnic   = document.getElementById('p-cnic').value.trim();
+    const age    = parseInt(document.getElementById('p-age').value);
+    const gender = document.getElementById('p-gender').value;
+    const blood  = document.getElementById('p-blood').value;
+    const phone  = document.getElementById('p-phone').value.trim();
+    const city   = document.getElementById('p-city').value.trim();
+    const pass   = document.getElementById('p-pass').value;
+    const allergiesRaw   = document.getElementById('p-allergies').value.trim();
+    const conditionsRaw  = document.getElementById('p-conditions').value.trim();
+
+    if (!name || !cnic || !age || !pass) {
+      showMsg('p-msg', 'Please fill all required fields (Name, CNIC, Age, Password).', 'error'); return;
+    }
+    if (!/^\d{5}-\d{7}-\d{1}$/.test(cnic)) {
+      showMsg('p-msg', 'CNIC format must be: 42101-1234567-8', 'error'); return;
+    }
+    try {
+      const ref = doc(db, "patients", cnic);
+      if ((await getDoc(ref)).exists()) {
+        showMsg('p-msg', 'This CNIC is already registered. Please sign in.', 'error'); return;
+      }
+      const allergies   = allergiesRaw  ? allergiesRaw.split(',').map(s=>s.trim()).filter(Boolean)  : [];
+      const conditions  = conditionsRaw ? conditionsRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
+      await setDoc(ref, {
+        id: `P${Date.now()}`, name, cnic, age, gender,
+        blood_group: blood||'Unknown', phone: phone||'', city: city||'',
+        password: pass, chronic_conditions: conditions, allergies,
+        surgeries: [], visits: [], active_medications: [], lab_reports: [], referrals: []
+      });
+      showMsg('p-msg', '✅ Registration successful! Redirecting…', 'success');
+      setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+    } catch(e) { console.error(e); showMsg('p-msg', 'Registration failed. Check console.', 'error'); }
+  };
+
+  /* ── Doctor ── */
+  window.registerDoctor = async () => {
+    const name     = document.getElementById('d-name').value.trim();
+    const pmdc     = document.getElementById('d-pmdc').value.trim();
+    const spec     = document.getElementById('d-spec').value;
+    const hospital = document.getElementById('d-hospital').value.trim();
+    const city     = document.getElementById('d-city').value.trim();
+    const phone    = document.getElementById('d-phone').value.trim();
+    const email    = document.getElementById('d-email').value.trim();
+    const pass     = document.getElementById('d-pass').value;
+    const pass2    = document.getElementById('d-pass2').value;
+
+    if (!name||!pmdc||!spec||!email||!pass) { showMsg('d-msg','Please fill all required fields.','error'); return; }
+    if (pass !== pass2) { showMsg('d-msg','Passwords do not match.','error'); return; }
+    try {
+      const snap = await getDocs(query(collection(db,"doctors"), where("pmdc","==",pmdc)));
+      if (!snap.empty) { showMsg('d-msg','This PMDC number is already registered.','error'); return; }
+      const docId = `D${Date.now()}`;
+      await setDoc(doc(db,"doctors",docId), {
+        id:docId, name, pmdc, specialization:spec,
+        hospital:hospital||'', city:city||'', phone:phone||'',
+        email, password:pass, verified:false, registered_at: new Date().toISOString()
+      });
+      showMsg('d-msg','✅ Doctor profile submitted! Redirecting…','success');
+      setTimeout(() => { window.location.href = 'index.html'; }, 2000);
+    } catch(e) { console.error(e); showMsg('d-msg','Registration failed.','error'); }
+  };
+
+  /* ── Lab ── */
+  window.registerLab = async () => {
+    const name    = document.getElementById('l-name').value.trim();
+    const regno   = document.getElementById('l-regno').value.trim();
+    const city    = document.getElementById('l-city').value.trim();
+    const address = document.getElementById('l-address').value.trim();
+    const phone   = document.getElementById('l-phone').value.trim();
+    const labType = document.getElementById('l-type').value;
+    const email   = document.getElementById('l-email').value.trim();
+    const pass    = document.getElementById('l-pass').value;
+    const pass2   = document.getElementById('l-pass2').value;
+
+    if (!name||!regno||!email||!pass) { showMsg('l-msg','Please fill Lab Name, Reg No., Email and Password.','error'); return; }
+    if (pass !== pass2) { showMsg('l-msg','Passwords do not match.','error'); return; }
+    try {
+      const snap = await getDocs(query(collection(db,"labs"), where("regno","==",regno)));
+      if (!snap.empty) { showMsg('l-msg','This registration number is already submitted.','error'); return; }
+      const labId = `L${Date.now()}`;
+      await setDoc(doc(db,"labs",labId), {
+        id:labId, name, regno, city:city||'', address:address||'',
+        phone:phone||'', lab_type:labType||'', email, password:pass,
+        verified:false, registered_at: new Date().toISOString()
+      });
+      showMsg('l-msg','✅ Lab application submitted! You will be contacted within 48 hours.','success');
+      setTimeout(() => { window.location.href = 'index.html'; }, 3000);
+    } catch(e) { console.error(e); showMsg('l-msg','Registration failed.','error'); }
+  };
+
+  /* ── CNIC auto-format ── */
+  const cnicInput = document.getElementById('p-cnic');
+  if (cnicInput) {
+    cnicInput.addEventListener('input', function() {
+      let v = this.value.replace(/[^0-9]/g,'');
+      if (v.length > 5)  v = v.slice(0,5)  + '-' + v.slice(5);
+      if (v.length > 13) v = v.slice(0,13) + '-' + v.slice(13);
+      this.value = v.slice(0,15);
+    });
+  }
+</script>
+</body>
+</html>

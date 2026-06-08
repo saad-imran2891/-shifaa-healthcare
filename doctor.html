@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shifaa — Doctor Portal</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Mulish:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <style>
+    /* (your existing CSS – unchanged) */
+    :root {
+      --bg: #f0f4f7;
+      --surface: #ffffff;
+      --primary: #0b4f6c;
+      --primary-mid: #1a6e8f;
+      --primary-light: #e8f4f8;
+      --accent: #e05c2a;
+      --accent-light: #fdf0eb;
+      --green: #1a7a4a;
+      --green-light: #e8f5ee;
+      --amber: #c47d0e;
+      --amber-light: #fdf5e4;
+      --red: #c0392b;
+      --red-light: #fdecea;
+      --text: #111b22;
+      --text-mid: #3d5265;
+      --text-muted: #7a90a0;
+      --border: #e2eaf0;
+      --shadow: 0 2px 20px rgba(11, 79, 108, 0.07);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Mulish', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    nav {
+      background: var(--primary);
+      height: 58px;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      z-index: 200;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    }
+
+    .logo { font-family: 'Playfair Display', serif; font-size: 20px; color: white; letter-spacing: 3px; font-weight: 700; }
+    .logo em { color: #5ecfef; font-style: normal; }
+    .nav-right { position: relative; }
+
+    .dr-profile-trigger {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--accent); color: white;
+      font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; border: 2px solid rgba(255,255,255,0.2);
+    }
+
+    .dr-dropdown {
+      display: none; position: absolute; right: 0; top: 48px;
+      background: white; border-radius: 12px; width: 260px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      border: 1px solid var(--border); padding: 16px; z-index: 300;
+    }
+    .dr-dropdown.show { display: block; }
+
+    .btn-logout {
+      width: 100%; font-size: 12px; font-weight: 700; color: white;
+      background: var(--red); border: none; padding: 8px; border-radius: 6px; cursor: pointer;
+    }
+
+    .workspace { display: flex; flex: 1; overflow: hidden; }
+
+    .sidebar {
+      width: 290px; flex-shrink: 0; background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+
+    .sidebar-head {
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .sidebar-title-row {
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 10px;
+    }
+
+    .sidebar-head h3 {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+
+    .btn-add-patient {
+      background: var(--primary-light); color: var(--primary);
+      border: none; padding: 6px 12px; border-radius: 6px;
+      font-size: 11px; font-weight: 700; cursor: pointer; transition: 0.2s;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .btn-add-patient:hover { background: var(--primary); color: white; }
+
+    .list-toggle {
+      display: flex;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      margin-bottom: 10px;
+      gap: 3px;
+    }
+
+    .list-toggle-btn {
+      flex: 1;
+      padding: 6px 8px;
+      border: none;
+      border-radius: 6px;
+      font-family: 'Mulish', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-muted);
+      transition: all 0.18s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .list-toggle-btn.active {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 2px 8px rgba(11,79,108,0.25);
+    }
+
+    .list-toggle-btn.referred-active {
+      background: var(--amber);
+      color: white;
+      box-shadow: 0 2px 8px rgba(196,125,14,0.3);
+    }
+
+    .referred-badge {
+      background: var(--accent);
+      color: white;
+      border-radius: 10px;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 1px 5px;
+      min-width: 16px;
+      text-align: center;
+    }
+
+    .list-toggle-btn.referred-active .referred-badge {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .search-wrap { position: relative; }
+    .search-wrap input {
+      width: 100%; padding: 9px 14px 9px 36px;
+      border: 1px solid var(--border); border-radius: 8px;
+      font-family: 'Mulish', sans-serif; font-size: 13px; outline: none; background: var(--bg);
+    }
+    .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--text-muted); }
+
+    .patient-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+
+    .p-item {
+      padding: 11px 18px; cursor: pointer;
+      display: flex; align-items: center; gap: 12px;
+      border-left: 3px solid transparent;
+    }
+    .p-item:hover { background: var(--primary-light); }
+    .p-item.active { background: var(--primary-light); border-left-color: var(--primary); }
+    .p-item.referred-item:hover { background: var(--amber-light); }
+    .p-item.referred-item.active { background: var(--amber-light); border-left-color: var(--amber); }
+
+    .p-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--primary); color: white;
+      font-family: 'Playfair Display', serif; font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .p-avatar.referred { background: var(--amber); }
+
+    .p-name { font-size: 13px; font-weight: 700; color: var(--text); }
+    .p-cnic { font-size: 11px; color: var(--text-muted); }
+    .p-referred-from { font-size: 10px; color: var(--amber); font-weight: 700; margin-top: 1px; }
+
+    .main { flex: 1; overflow-y: auto; padding: 24px; }
+
+    .empty-state {
+      height: 100%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; color: var(--text-muted); gap: 12px;
+    }
+
+    .referral-banner {
+      background: linear-gradient(135deg, #fff8ed 0%, #fdf5e4 100%);
+      border: 1px solid #f0d080;
+      border-left: 5px solid var(--amber);
+      border-radius: 12px;
+      padding: 18px 22px;
+      margin-bottom: 20px;
+    }
+
+    .rb-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+    }
+
+    .rb-icon {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--amber); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+
+    .rb-title { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 700; color: var(--amber); }
+    .rb-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+    .rb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .rb-label {
+      font-size: 9px; font-weight: 800; text-transform: uppercase;
+      color: var(--text-muted); letter-spacing: 1px; margin-bottom: 3px;
+    }
+
+    .rb-value { font-size: 13px; font-weight: 600; color: var(--text); }
+
+    .rb-reason-box {
+      margin-top: 12px; background: white;
+      border: 1px solid #f0d080; border-radius: 8px; padding: 10px 14px;
+    }
+
+    .rb-reason-label {
+      font-size: 9px; font-weight: 800; text-transform: uppercase;
+      color: var(--amber); letter-spacing: 1px; margin-bottom: 4px;
+    }
+
+    .rb-reason-text { font-size: 13px; color: var(--text-mid); line-height: 1.5; }
+
+    .rb-status {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 10px; font-weight: 800; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 20px; margin-top: 10px;
+    }
+    .rb-status.pending { background: var(--amber-light); color: var(--amber); border: 1px solid #f0d080; }
+    .rb-status.accepted { background: var(--green-light); color: var(--green); }
+
+    .patient-card {
+      background: var(--primary); border-radius: 14px; padding: 22px 26px; color: white;
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;
+    }
+
+    .pc-avatar {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: rgba(255,255,255,0.15); color: white;
+      font-family: 'Playfair Display', serif; font-size: 22px;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid rgba(255,255,255,0.3);
+    }
+
+    .pc-name { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; }
+    .pc-meta { display: flex; gap: 16px; font-size: 12px; opacity: 0.9; margin-top: 4px; }
+
+    .btn-prescribe {
+      background: white; color: var(--primary); border: none;
+      padding: 10px 22px; border-radius: 8px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; gap: 8px;
+    }
+
+    .btn-refer {
+      background: var(--amber); color: white; border: none;
+      padding: 10px 22px; border-radius: 8px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; gap: 8px;
+    }
+
+    .patient-card-buttons { display: flex; gap: 10px; }
+
+    .emergency-strip {
+      background: var(--red-light); border: 1px solid #f5c6c0;
+      border-left: 4px solid var(--red); border-radius: 0 10px 10px 0;
+      padding: 12px 18px; display: flex; gap: 20px; margin-bottom: 20px;
+    }
+
+    .es-label { font-size: 10px; font-weight: 800; color: var(--red); text-transform: uppercase; }
+    .es-value { font-size: 13px; font-weight: 600; color: #8b0000; }
+
+    .section {
+      background: var(--surface); border-radius: 12px; border: 1px solid var(--border);
+      padding: 20px 24px; margin-bottom: 18px; box-shadow: var(--shadow);
+    }
+
+    .sec-head {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+    }
+
+    .sec-head h2 { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--primary); }
+
+    .timeline { padding-left: 20px; position: relative; }
+    .timeline::before {
+      content: ''; position: absolute; left: 5px; top: 8px; bottom: 8px;
+      width: 2px; background: var(--border);
+    }
+
+    .visit {
+      position: relative; margin-bottom: 20px; padding: 18px 20px;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
+    }
+
+    .visit::before {
+      content: ''; position: absolute; left: -23px; top: 22px;
+      width: 9px; height: 9px; border-radius: 50%;
+      background: var(--primary); border: 2px solid white;
+    }
+
+    .v-header-block {
+      background: var(--primary-light); padding: 8px 12px; border-radius: 6px;
+      margin-bottom: 12px; border-left: 3px solid var(--primary);
+    }
+
+    .v-date { font-size: 10px; font-weight: 800; color: var(--primary-mid); }
+    .v-doctor { font-size: 14px; font-weight: 700; color: var(--primary); }
+    .v-row { margin-top: 10px; }
+    .v-label { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+    .tags-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .vtag { font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 30px; }
+    .vtag-red { background: var(--red-light); color: var(--red); border: 1px solid #f5c6c0; }
+
+    .v-diagnosis {
+      font-size: 14px; font-weight: 700; background: #eaf7f0;
+      padding: 6px 12px; border-radius: 6px; border-left: 3px solid var(--green); margin-top: 12px;
+    }
+
+    .dt { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 6px; }
+    .dt thead tr { background: var(--primary); }
+    .dt thead th { padding: 9px 13px; text-align: left; font-size: 10px; font-weight: 700; color: white; text-transform: uppercase; }
+    .dt tbody td { padding: 10px 13px; border-bottom: 1px solid var(--border); }
+
+    .notes-box {
+      background: var(--amber-light); border-left: 3px solid var(--amber);
+      padding: 9px 13px; border-radius: 4px; font-size: 12px; color: #5a3a00; margin-top: 10px;
+    }
+
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(10,30,40,0.55); z-index: 500;
+      align-items: center; justify-content: center; backdrop-filter: blur(3px);
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: white; width: 94%; max-width: 620px; border-radius: 18px;
+      padding: 32px; max-height: 88vh; overflow-y: auto;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+    }
+
+    .modal h2 {
+      font-family: 'Playfair Display', serif; font-size: 22px; color: var(--primary);
+      margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+    }
+
+    .modal-patient-info {
+      background: var(--primary-light); border-radius: 8px; padding: 11px 16px;
+      font-size: 13px; font-weight: 600; color: var(--primary); margin: 14px 0 20px;
+    }
+
+    .form-group { margin-bottom: 16px; }
+
+    .form-label {
+      font-size: 11px; font-weight: 700; color: var(--text-mid);
+      text-transform: uppercase; display: block; margin-bottom: 8px;
+    }
+
+    .med-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+
+    .med-row input, .form-control {
+      padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: 'Mulish', sans-serif; font-size: 13px; outline: none; width: 100%;
+    }
+
+    .btn-add {
+      background: var(--primary-light); color: var(--primary); border: none;
+      padding: 10px 16px; border-radius: 8px; font-weight: 700; font-size: 13px;
+      cursor: pointer; margin: 4px 0 16px; display: flex; align-items: center; gap: 6px;
+    }
+
+    .btn-remove {
+      background: var(--red); color: white; border: none;
+      width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    textarea.notes-input {
+      width: 100%; padding: 10px 14px; border: 1px solid var(--border);
+      border-radius: 8px; min-height: 80px; outline: none;
+    }
+
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+
+    .btn-cancel {
+      background: var(--bg); color: var(--text-mid); border: 1px solid var(--border);
+      padding: 10px 20px; border-radius: 8px; cursor: pointer;
+    }
+
+    .btn-save-live {
+      background: var(--green); color: white; border: none;
+      padding: 10px 22px; border-radius: 8px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; gap: 8px;
+    }
+    .btn-save-live:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .loading { text-align: center; padding: 32px; color: var(--text-muted); }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .no-referrals { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+    .no-referrals .nr-icon { font-size: 32px; margin-bottom: 10px; }
+    .no-referrals p { font-size: 13px; }
+  </style>
+</head>
+
+<body>
+
+  <nav>
+    <div class="logo">SHI<em>FAA</em></div>
+    <div class="nav-right">
+      <div class="dr-profile-trigger" id="drAvatar" onclick="toggleDropdown()">DR</div>
+      <div class="dr-dropdown" id="drDropdown">
+        <h4 id="drDropName">Loading...</h4>
+        <p id="drDropSpec">...</p>
+        <button class="btn-logout" onclick="logout()">Sign Out</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="workspace">
+    <div class="sidebar">
+      <div class="sidebar-head">
+        <div class="sidebar-title-row">
+          <h3 id="sidebarTitle">Patients</h3>
+          <button class="btn-add-patient" id="openNewPatientModalBtn">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+            </svg>
+            Add Patient
+          </button>
+        </div>
+
+        <!-- My Patients / Referred Toggle -->
+        <div class="list-toggle">
+          <button class="list-toggle-btn active" id="toggleMyPatients">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+            My Patients
+          </button>
+          <button class="list-toggle-btn" id="toggleReferred">
+            &#8599; Referred
+            <span class="referred-badge" id="referralCountBadge">0</span>
+          </button>
+        </div>
+
+        <div class="search-wrap">
+          <span class="search-icon">&#8981;</span>
+          <input type="text" id="searchInput" placeholder="Search name or CNIC..." />
+        </div>
+      </div>
+      <div class="patient-list" id="patientList">
+        <div class="loading">Fetching records...</div>
+      </div>
+    </div>
+
+    <div class="main" id="mainContent">
+      <div class="empty-state">
+        <p>Select a patient from the sidebar</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Patient Registration Modal -->
+  <div class="modal-overlay" id="patientModalOverlay">
+    <div class="modal">
+      <h2>Register New Patient</h2>
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" id="newPatientName" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">CNIC</label>
+        <input type="text" id="newPatientCnic" class="form-control" />
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Age</label>
+          <input type="number" id="newPatientAge" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Gender</label>
+          <select id="newPatientGender" class="form-control">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Chronic Conditions</label>
+        <input type="text" id="newPatientChronic" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Allergies</label>
+        <input type="text" id="newPatientAllergies" class="form-control" />
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closePatientModal()">Cancel</button>
+        <button class="btn-save-live" id="saveNewPatientBtn">Save Patient</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prescription Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h2>New Prescription / Visit</h2>
+      <div class="modal-patient-info" id="modalPatientInfo">&#8212;</div>
+      <div class="form-group">
+        <label class="form-label">Symptoms</label>
+        <input type="text" id="rxSymptoms" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Diagnosis</label>
+        <input type="text" id="rxDiagnosis" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Medicines</label>
+        <div id="medsList"></div>
+        <button class="btn-add" id="addBtnElement">+ Add Medicine</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea id="rxNotes" class="notes-input"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-save-live" id="saveLiveBtnElement">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Referral Modal -->
+  <div class="modal-overlay" id="referModalOverlay">
+    <div class="modal">
+      <h2>Refer Patient</h2>
+      <div class="modal-patient-info" id="referModalPatientInfo">&#8212;</div>
+      <div class="form-group">
+        <label class="form-label">Target Doctor PMDC ID</label>
+        <input type="text" id="referTargetPmdc" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reason</label>
+        <textarea id="referReason" class="notes-input"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeReferralModal()">Cancel</button>
+        <button class="btn-save-live" id="sendReferralBtn">Send Referral</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore, collection, getDocs, doc, addDoc, updateDoc, arrayUnion,
+      enableIndexedDbPersistence, query, where
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCWnb5WA8GHS3Ez_nEpVKbGJox6dGEdYOg",
+      authDomain: "shifaa-2fb18.firebaseapp.com",
+      projectId: "shifaa-2fb18",
+      storageBucket: "shifaa-2fb18.firebasestorage.app",
+      messagingSenderId: "535826100759",
+      appId: "1:535826100759:web:d31fa59255923dc6636252"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    enableIndexedDbPersistence(db).catch(() => {});
+
+    // ============ FIXED: Load doctor from sessionStorage ============
+    let currentDoctor = null;
+    const storedDoctor = sessionStorage.getItem('shifaa_doctor');
+    if (storedDoctor) {
+      currentDoctor = JSON.parse(storedDoctor);
+      console.log("Logged in doctor:", currentDoctor);
+    } else {
+      alert("No doctor session found. Please login again.");
+      window.location.href = "login.html";
+    }
+
+    // Update UI with doctor's name and specialization
+    document.getElementById('drDropName').innerText = currentDoctor.name;
+    document.getElementById('drDropSpec').innerText = currentDoctor.specialization || "General Physician";
+    // Also update the avatar initials (optional, could use first two letters)
+    document.getElementById('drAvatar').innerText = (currentDoctor.name?.slice(0,2) || "DR").toUpperCase();
+
+    let allPatients = [], filtered = [], selected = null;
+    let allReferrals = [], filteredReferrals = [];
+    let currentView = 'patients';
+
+    // ============ GLOBALS ============
+    window.toggleDropdown = () => document.getElementById('drDropdown').classList.toggle('show');
+    window.logout = () => { 
+      sessionStorage.removeItem('shifaa_doctor');
+      sessionStorage.removeItem('shifaa_user');  // clear both
+      window.location.href = "login.html";
+    };
+    window.closePatientModal = () => document.getElementById('patientModalOverlay').classList.remove('open');
+    window.closeModal = () => document.getElementById('modalOverlay').classList.remove('open');
+    window.closeReferralModal = () => document.getElementById('referModalOverlay').classList.remove('open');
+
+    // ============ TOGGLE ============
+    document.getElementById('toggleMyPatients').addEventListener('click', () => {
+      currentView = 'patients';
+      selected = null;
+      document.getElementById('toggleMyPatients').classList.add('active');
+      document.getElementById('toggleMyPatients').classList.remove('referred-active');
+      document.getElementById('toggleReferred').classList.remove('active', 'referred-active');
+      document.getElementById('sidebarTitle').textContent = 'Patients';
+      document.getElementById('openNewPatientModalBtn').style.display = '';
+      document.getElementById('mainContent').innerHTML = '<div class="empty-state"><p>Select a patient from the sidebar</p></div>';
+      applyFilter();
+    });
+
+    document.getElementById('toggleReferred').addEventListener('click', () => {
+      currentView = 'referred';
+      selected = null;
+      document.getElementById('toggleReferred').classList.add('referred-active');
+      document.getElementById('toggleMyPatients').classList.remove('active', 'referred-active');
+      document.getElementById('sidebarTitle').textContent = 'Referred to Me';
+      document.getElementById('openNewPatientModalBtn').style.display = 'none';
+      document.getElementById('mainContent').innerHTML = '<div class="empty-state"><p>Select a referred patient</p></div>';
+      applyFilter();
+    });
+
+    // ============ SEND REFERRAL ============
+    async function sendReferral() {
+      const targetPmdc = document.getElementById('referTargetPmdc').value.trim();
+      const reason = document.getElementById('referReason').value.trim();
+      if (!targetPmdc) return alert("Please enter Doctor PMDC ID!");
+      if (!selected) return alert("Please select a patient first!");
+      if (!reason) return alert("Please enter a reason for referral!");
+
+      const btn = document.getElementById('sendReferralBtn');
+      btn.disabled = true; btn.textContent = 'Sending...';
+
+      try {
+        const lastVisit = (selected.visits || []).slice(-1)[0];
+        await addDoc(collection(db, "referrals"), {
+          patientCNIC: selected.cnic,
+          patientName: selected.name,
+          patientAge: selected.age || '',
+          patientGender: selected.gender || '',
+          patientChronic: selected.chronic_conditions || [],
+          patientAllergies: selected.allergies || [],
+          fromDoctorPMDC: currentDoctor.pmdc,
+          fromDoctorName: currentDoctor.name,
+          fromDoctorSpec: currentDoctor.specialization,
+          toDoctorPMDC: targetPmdc,
+          reason: reason,
+          lastDiagnosis: lastVisit?.diagnosis || '',
+          lastSymptoms: lastVisit?.symptoms || [],
+          timestamp: new Date().toISOString(),
+          status: "pending"
+        });
+        alert("Referral sent successfully!");
+        closeReferralModal();
+        document.getElementById('referTargetPmdc').value = '';
+        document.getElementById('referReason').value = '';
+      } catch (err) {
+        console.error(err);
+        alert("Failed to send referral.");
+      } finally {
+        btn.disabled = false; btn.textContent = 'Send Referral';
+      }
+    }
+
+    // ============ INIT ============
+    async function init() {
+      try {
+        const [pSnap, rSnap] = await Promise.all([
+          getDocs(collection(db, "patients")),
+          getDocs(query(collection(db, "referrals"), where("toDoctorPMDC", "==", currentDoctor.pmdc)))
+        ]);
+
+        allPatients = pSnap.docs.map(d => ({ ...d.data(), firestoreId: d.id }));
+        allReferrals = rSnap.docs.map(d => ({ ...d.data(), firestoreId: d.id }));
+
+        document.getElementById('referralCountBadge').textContent = allReferrals.length;
+
+        applyFilter();
+        if (currentView === 'patients' && filtered.length && !selected) selectPatient(filtered[0]);
+      } catch (err) {
+        console.error(err);
+        document.getElementById('patientList').innerHTML = '<div class="loading">Error loading records.</div>';
+      }
+    }
+
+    function applyFilter() {
+      const q = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
+      if (currentView === 'patients') {
+        filtered = q ? allPatients.filter(p => p.name?.toLowerCase().includes(q) || p.cnic?.includes(q)) : [...allPatients];
+        renderPatientList();
+      } else {
+        filteredReferrals = q ? allReferrals.filter(r => r.patientName?.toLowerCase().includes(q) || r.patientCNIC?.includes(q)) : [...allReferrals];
+        renderReferralList();
+      }
+    }
+
+    function renderPatientList() {
+      const el = document.getElementById('patientList');
+      if (!el) return;
+      el.innerHTML = '';
+      if (!filtered.length) { el.innerHTML = '<div class="loading">No patients found.</div>'; return; }
+      filtered.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'p-item' + (selected?.firestoreId === p.firestoreId ? ' active' : '');
+        div.innerHTML = `
+          <div class="p-avatar">${(p.name||'P')[0].toUpperCase()}</div>
+          <div>
+            <div class="p-name">${p.name||'No Name'}</div>
+            <div class="p-cnic">${p.cnic||'No CNIC'}</div>
+          </div>`;
+        div.addEventListener('click', () => selectPatient(p));
+        el.appendChild(div);
+      });
+    }
+
+    function renderReferralList() {
+      const el = document.getElementById('patientList');
+      if (!el) return;
+      el.innerHTML = '';
+      if (!filteredReferrals.length) {
+        el.innerHTML = `<div class="no-referrals"><div class="nr-icon">&#8599;</div><p>No referrals received yet</p></div>`;
+        return;
+      }
+      filteredReferrals.forEach(r => {
+        const div = document.createElement('div');
+        const isActive = selected?._referralId === r.firestoreId;
+        div.className = 'p-item referred-item' + (isActive ? ' active' : '');
+        const dateStr = r.timestamp ? new Date(r.timestamp).toLocaleDateString('en-PK', { day:'numeric', month:'short' }) : '';
+        div.innerHTML = `
+          <div class="p-avatar referred">${(r.patientName||'P')[0].toUpperCase()}</div>
+          <div style="min-width:0;flex:1;">
+            <div class="p-name">${r.patientName||'Unknown'}</div>
+            <div class="p-cnic">${r.patientCNIC||'&#8212;'}</div>
+            <div class="p-referred-from">&#8599; ${r.fromDoctorName||'Unknown Dr'} &middot; ${dateStr}</div>
+          </div>`;
+        div.addEventListener('click', () => selectReferral(r));
+        el.appendChild(div);
+      });
+    }
+
+    function selectPatient(p) {
+      selected = p;
+      renderPatientList();
+      renderDetail(p);
+    }
+
+    function selectReferral(r) {
+      selected = { ...r, _referralId: r.firestoreId };
+      renderReferralList();
+      renderReferralDetail(r);
+    }
+
+    // ============ REFERRED PATIENT DETAIL ============
+    function renderReferralDetail(r) {
+      const main = document.getElementById('mainContent');
+      if (!main) return;
+
+      const patientRecord = allPatients.find(p => p.cnic === r.patientCNIC);
+      const visits = patientRecord?.visits || [];
+
+      const dateFormatted = r.timestamp
+        ? new Date(r.timestamp).toLocaleDateString('en-PK', { day:'numeric', month:'long', year:'numeric' })
+        : '&#8212;';
+
+      const symptomsHtml = (r.lastSymptoms||[]).length
+        ? r.lastSymptoms.map(s => `<span class="vtag vtag-red">${s}</span>`).join('')
+        : '<span style="color:var(--text-muted);font-size:12px;">None recorded</span>';
+
+      const visitsHtml = visits.length
+        ? visits.slice().reverse().map(v => `
+          <div class="visit">
+            <div class="v-header-block">
+              <div class="v-date">Visit Date: ${v.date||'&#8212;'}</div>
+              <div class="v-doctor">Doctor: ${v.doctor||'&#8212;'}</div>
+            </div>
+            ${v.symptoms?.length ? `<div class="v-row"><div class="v-label">Symptoms</div><div class="tags-row">${v.symptoms.map(s=>`<span class="vtag vtag-red">${s}</span>`).join('')}</div></div>` : ''}
+            ${v.diagnosis ? `<div class="v-diagnosis">Diagnosis: ${v.diagnosis}</div>` : ''}
+            ${v.prescription?.length ? `<div class="v-row"><div class="v-label">Prescription</div><table class="dt"><thead><tr><th>Medicine</th><th>Dose</th><th>Frequency</th></tr></thead><tbody>${v.prescription.map(rx=>`<tr><td>${rx.medicine}</td><td>${rx.dose}</td><td>${rx.frequency}</td></tr>`).join('')}</tbody></table></div>` : ''}
+            ${v.notes ? `<div class="notes-box">${v.notes}</div>` : ''}
+          </div>`).join('')
+        : '<p style="color:var(--text-muted);font-size:13px;">No prior history found in system.</p>';
+
+      main.innerHTML = `
+        <div class="patient-card">
+          <div style="display:flex;gap:16px;align-items:center;">
+            <div class="pc-avatar">${(r.patientName||'P')[0].toUpperCase()}</div>
+            <div>
+              <div class="pc-name">${r.patientName||'&#8212;'}</div>
+              <div class="pc-meta">${r.patientCNIC||'&#8212;'} | Age: ${r.patientAge||'&#8212;'} | ${r.patientGender||'&#8212;'}</div>
+            </div>
+          </div>
+          <div class="patient-card-buttons">
+            <button class="btn-prescribe" id="prescribeReferredBtn">+ Prescription</button>
+          </div>
+        </div>
+
+        <div class="emergency-strip">
+          <div><div class="es-label">Chronic</div><div class="es-value">${(r.patientChronic||[]).join(', ')||'None'}</div></div>
+          <div><div class="es-label">Allergies</div><div class="es-value">${(r.patientAllergies||[]).join(', ')||'None'}</div></div>
+        </div>
+
+        <div class="referral-banner">
+          <div class="rb-header">
+            <div class="rb-icon">&#8599;</div>
+            <div>
+              <div class="rb-title">Referral Information</div>
+              <div class="rb-subtitle">This patient was referred to you by another doctor</div>
+            </div>
+          </div>
+          <div class="rb-grid">
+            <div>
+              <div class="rb-label">Referred By</div>
+              <div class="rb-value">${r.fromDoctorName||'&#8212;'}</div>
+            </div>
+            <div>
+              <div class="rb-label">Specialization</div>
+              <div class="rb-value">${r.fromDoctorSpec||'&#8212;'}</div>
+            </div>
+            <div>
+              <div class="rb-label">From PMDC</div>
+              <div class="rb-value">${r.fromDoctorPMDC||'&#8212;'}</div>
+            </div>
+            <div>
+              <div class="rb-label">Referred On</div>
+              <div class="rb-value">${dateFormatted}</div>
+            </div>
+          </div>
+
+          <div class="rb-reason-box">
+            <div class="rb-reason-label">Reason for Referral</div>
+            <div class="rb-reason-text">${r.reason||'&#8212;'}</div>
+          </div>
+
+          ${r.lastDiagnosis ? `
+          <div class="rb-reason-box" style="margin-top:8px;border-color:#a8d5b0;">
+            <div class="rb-reason-label" style="color:var(--green);">Previous Diagnosis (by referring doctor)</div>
+            <div class="rb-reason-text" style="font-weight:700;color:var(--green);">${r.lastDiagnosis}</div>
+            ${(r.lastSymptoms||[]).length ? `<div style="margin-top:8px;"><div class="rb-reason-label">Presenting Symptoms</div><div class="tags-row" style="margin-top:4px;">${symptomsHtml}</div></div>` : ''}
+          </div>` : ''}
+
+          <div>
+            <span class="rb-status ${r.status==='pending'?'pending':'accepted'}">
+              &#9679; ${r.status==='pending'?'Pending Review':'Accepted'}
+            </span>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="sec-head"><h2>Full Medical History</h2></div>
+          <div class="timeline">${visitsHtml}</div>
+        </div>
+      `;
+
+      document.getElementById('prescribeReferredBtn')?.addEventListener('click', () => {
+        if (patientRecord) {
+          openPrescriptionModal(patientRecord);
+        } else {
+          alert("Patient not yet registered in your records. Please add them via 'Add Patient' to save a prescription.");
+        }
+      });
+    }
+
+    // ============ MY PATIENTS DETAIL ============
+    function renderDetail(p) {
+      const main = document.getElementById('mainContent');
+      if (!main) return;
+
+      const visitsHtml = (p.visits||[]).slice().reverse().map(v => `
+        <div class="visit">
+          <div class="v-header-block">
+            <div class="v-date">Visit Date: ${v.date||'&#8212;'}</div>
+            <div class="v-doctor">Doctor: ${v.doctor||'&#8212;'}</div>
+          </div>
+          ${v.symptoms?.length ? `<div class="v-row"><div class="v-label">Symptoms</div><div class="tags-row">${v.symptoms.map(s=>`<span class="vtag vtag-red">${s}</span>`).join('')}</div></div>` : ''}
+          ${v.diagnosis ? `<div class="v-diagnosis">Diagnosis: ${v.diagnosis}</div>` : ''}
+          ${v.prescription?.length ? `<div class="v-row"><div class="v-label">Prescription</div><table class="dt"><thead><tr><th>Medicine</th><th>Dose</th><th>Frequency</th></tr></thead><tbody>${v.prescription.map(rx=>`<tr><td>${rx.medicine}</td><td>${rx.dose}</td><td>${rx.frequency}</td></tr>`).join('')}</tbody></table></div>` : ''}
+          ${v.notes ? `<div class="notes-box">${v.notes}</div>` : ''}
+        </div>`).join('') || '<p>No history available.</p>';
+
+      main.innerHTML = `
+        <div class="patient-card">
+          <div style="display:flex;gap:16px;align-items:center;">
+            <div class="pc-avatar">${(p.name||'P')[0].toUpperCase()}</div>
+            <div>
+              <div class="pc-name">${p.name}</div>
+              <div class="pc-meta">${p.cnic} | Age: ${p.age} | ${p.gender}</div>
+            </div>
+          </div>
+          <div class="patient-card-buttons">
+            <button class="btn-prescribe" id="prescribeBtn">+ Prescription</button>
+            <button class="btn-refer" id="referBtn">&#8599; Refer</button>
+          </div>
+        </div>
+        <div class="emergency-strip">
+          <div><div class="es-label">Chronic</div><div class="es-value">${(p.chronic_conditions||[]).join(', ')||'None'}</div></div>
+          <div><div class="es-label">Allergies</div><div class="es-value">${(p.allergies||[]).join(', ')||'None'}</div></div>
+        </div>
+        <div class="section"><div class="sec-head"><h2>Medical History</h2></div><div class="timeline">${visitsHtml}</div></div>
+      `;
+
+      document.getElementById('prescribeBtn')?.addEventListener('click', () => openPrescriptionModal(p));
+      document.getElementById('referBtn')?.addEventListener('click', () => openReferralModal(p));
+    }
+
+    function openPrescriptionModal(p) {
+      document.getElementById('modalPatientInfo').innerHTML = `${p.name} &middot; ${p.cnic}`;
+      document.getElementById('rxSymptoms').value = '';
+      document.getElementById('rxDiagnosis').value = '';
+      document.getElementById('rxNotes').value = '';
+      document.getElementById('medsList').innerHTML = '';
+      addNewMedRow();
+      document.getElementById('modalOverlay').classList.add('open');
+      window._currentPatient = p;
+    }
+
+    function openReferralModal(p) {
+      document.getElementById('referModalPatientInfo').innerHTML = `${p.name} &middot; ${p.cnic}`;
+      document.getElementById('referTargetPmdc').value = '';
+      document.getElementById('referReason').value = '';
+      document.getElementById('referModalOverlay').classList.add('open');
+    }
+
+    function addNewMedRow(medName='', dose='', freq='') {
+      const div = document.createElement('div');
+      div.className = 'med-row';
+      div.innerHTML = `
+        <input type="text" placeholder="Medicine" class="med-name" value="${medName}" style="flex:2">
+        <input type="text" placeholder="Dose" class="med-dose" value="${dose}" style="flex:1">
+        <input type="text" placeholder="Frequency" class="med-freq" value="${freq}" style="flex:1">
+        <button class="btn-remove" onclick="this.parentElement.remove()">&#10006;</button>`;
+      document.getElementById('medsList').appendChild(div);
+    }
+
+    // ============ EVENT LISTENERS ============
+    document.getElementById('addBtnElement')?.addEventListener('click', () => addNewMedRow());
+
+    document.getElementById('saveNewPatientBtn')?.addEventListener('click', async () => {
+      const name = document.getElementById('newPatientName').value.trim();
+      const cnic = document.getElementById('newPatientCnic').value.trim();
+      const age = document.getElementById('newPatientAge').value.trim();
+      const gender = document.getElementById('newPatientGender').value;
+      const chronic = document.getElementById('newPatientChronic').value.trim().split(',').map(c=>c.trim()).filter(c=>c);
+      const allergies = document.getElementById('newPatientAllergies').value.trim().split(',').map(a=>a.trim()).filter(a=>a);
+      if (!name||!cnic||!age) return alert("Please fill Name, CNIC and Age");
+
+      const btn = document.getElementById('saveNewPatientBtn');
+      btn.disabled = true; btn.textContent = 'Saving...';
+      try {
+        const data = { name, cnic, age: parseInt(age), gender, chronic_conditions: chronic, allergies, visits: [], active_medications: [] };
+        const docRef = await addDoc(collection(db, "patients"), data);
+        const newPatient = { ...data, firestoreId: docRef.id };
+        allPatients.unshift(newPatient);
+        closePatientModal();
+        applyFilter();
+        selectPatient(newPatient);
+      } catch (err) {
+        console.error(err); alert("Error saving patient");
+      } finally {
+        btn.disabled = false; btn.textContent = 'Save Patient';
+      }
+    });
+
+    document.getElementById('saveLiveBtnElement')?.addEventListener('click', async () => {
+      const p = window._currentPatient;
+      if (!p) return;
+
+      const symptoms = document.getElementById('rxSymptoms').value.trim().split(',').map(s=>s.trim()).filter(s=>s);
+      const diagnosis = document.getElementById('rxDiagnosis').value.trim();
+      const notes = document.getElementById('rxNotes').value.trim();
+      if (!diagnosis) return alert("Please enter diagnosis");
+
+      const medicines = [];
+      document.querySelectorAll('#medsList .med-row').forEach(row => {
+        const med = row.querySelector('.med-name')?.value.trim();
+        const dose = row.querySelector('.med-dose')?.value.trim();
+        const freq = row.querySelector('.med-freq')?.value.trim();
+        if (med) medicines.push({ medicine: med, dose, frequency: freq });
+      });
+
+      const newVisit = {
+        date: new Date().toISOString().split('T')[0],
+        doctor: currentDoctor.name,
+        specialization: currentDoctor.specialization,
+        diagnosis, symptoms, prescription: medicines, notes
+      };
+
+      const btn = document.getElementById('saveLiveBtnElement');
+      btn.disabled = true; btn.textContent = 'Saving...';
+
+      try {
+        if (!p.visits) p.visits = [];
+        p.visits.push(newVisit);
+        p.active_medications = medicines;
+        const idx = allPatients.findIndex(ap => ap.firestoreId === p.firestoreId);
+        if (idx !== -1) allPatients[idx] = p;
+        closeModal();
+        selectPatient(p);
+        await updateDoc(doc(db, "patients", p.firestoreId), { visits: arrayUnion(newVisit), active_medications: medicines });
+      } catch (err) {
+        console.error(err); alert("Error saving prescription. Please try again.");
+        p.visits.pop(); renderDetail(p);
+      } finally {
+        btn.disabled = false; btn.textContent = 'Save';
+      }
+    });
+
+    document.getElementById('sendReferralBtn')?.addEventListener('click', sendReferral);
+
+    document.getElementById('openNewPatientModalBtn')?.addEventListener('click', () => {
+      ['newPatientName','newPatientCnic','newPatientAge','newPatientChronic','newPatientAllergies'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('patientModalOverlay').classList.add('open');
+    });
+
+    document.getElementById('searchInput')?.addEventListener('input', applyFilter);
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.nav-right')) document.getElementById('drDropdown').classList.remove('show');
+    });
+
+    init();
+  </script>
+</body>
+</html>

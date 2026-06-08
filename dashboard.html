@@ -1,0 +1,72 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="refresh" content="0; url=patient.html">
+  <title>Redirecting...</title>
+</head>
+<body>
+  <p>Page moved. <a href="patient.html">Click here</a> if not redirected.</p>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Redirecting...</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 50px;
+      color: #333;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #007bff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="spinner"></div>
+  <p>Loading your customized workspace...</p>
+
+  <script>
+    // 1. Pehle check karo ke login karte waqt koi role save hua tha ya nahi
+    // (Agar aap local storage use nahi bhi kar rahe, to niche default fallback lagaya hai)
+    const userRole = localStorage.getItem("userRole") || "Patient";
+
+    // 2. Pure client-side speed ke sath redirect karo (Bina kisi firebase delay ke)
+    if (userRole === "Doctor") {
+      window.location.href = "doctor.html";
+    } else if (userRole === "Patient") {
+      window.location.href = "patient.html";
+    } else if (userRole === "Lab") {
+      window.location.href = "patient.html"; // Agar lab ka page alag nahi hai to patient par bhej do
+    } else if (userRole === "Hospital") {
+      window.location.href = "patient.html"; // Agar hospital ka alag nahi hai to patient par bhej do
+    } else {
+      // Fallback agar kuch bhi samajh na aaye to login par wapas bhej do
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+
+</html>

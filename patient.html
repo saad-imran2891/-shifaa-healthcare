@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shifaa — Patient Record</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Mulish:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <!-- jsPDF & html2canvas for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --bg: #f5f7fa;
+      --surface: #ffffff;
+      --primary: #0b4f6c;
+      --primary-mid: #1a6e8f;
+      --primary-light: #e8f4f8;
+      --accent: #e05c2a;
+      --accent-light: #fdf0eb;
+      --green: #1a7a4a;
+      --green-light: #e8f5ee;
+      --amber: #c47d0e;
+      --amber-light: #fdf5e4;
+      --red: #c0392b;
+      --red-light: #fdecea;
+      --text: #111b22;
+      --text-mid: #3d5265;
+      --text-muted: #7a90a0;
+      --border: #e2eaf0;
+      --line: #d0dde6;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Mulish', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    nav {
+      background: var(--primary);
+      padding: 0 40px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: #fff;
+      letter-spacing: 2px;
+      font-weight: 700;
+    }
+
+    .logo em {
+      color: #5ecfef;
+      font-style: normal;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .nav-pill {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 5px 14px;
+      border-radius: 30px;
+    }
+
+    .btn-logout {
+      font-size: 13px;
+      font-weight: 600;
+      color: white;
+      background: var(--accent);
+      border: none;
+      padding: 7px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: background 0.2s;
+    }
+
+    .btn-logout:hover {
+      background: #c44d22;
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 36px 24px 60px;
+    }
+
+    .emergency-banner {
+      background: var(--red);
+      color: white;
+      border-radius: 10px;
+      padding: 14px 22px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 28px;
+      animation: slideDown 0.4s ease both;
+    }
+
+    .emergency-banner .label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      opacity: 0.75;
+      margin-bottom: 2px;
+    }
+
+    .emergency-banner .value {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .emergency-divider {
+      width: 1px;
+      height: 36px;
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .patient-header {
+      background: var(--surface);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 24px;
+      animation: fadeUp 0.45s ease 0.05s both;
+      box-shadow: 0 2px 16px rgba(11, 79, 108, 0.06);
+    }
+
+    .avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 3px solid var(--primary-light);
+    }
+
+    .patient-info h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+
+    .patient-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 8px;
+    }
+
+    .meta-chip {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .meta-chip .key {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .meta-chip .val {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .blood-tag {
+      background: var(--accent);
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 5px;
+    }
+
+    .condition-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .ctag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 30px;
+      letter-spacing: 0.2px;
+    }
+
+    .ctag-amber {
+      background: var(--amber-light);
+      color: var(--amber);
+    }
+
+    .ctag-red {
+      background: var(--red-light);
+      color: var(--red);
+    }
+
+    .ctag-green {
+      background: var(--green-light);
+      color: var(--green);
+    }
+
+    .ctag-blue {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .section {
+      background: var(--surface);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 24px 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 16px rgba(11, 79, 108, 0.05);
+      animation: fadeUp 0.45s ease both;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-icon {
+      width: 34px;
+      height: 34px;
+      background: var(--primary-light);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .section-head h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .count-badge {
+      margin-left: auto;
+      background: var(--primary);
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 30px;
+    }
+
+    .timeline {
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+    }
+
+    .visit {
+      position: relative;
+      margin-bottom: 22px;
+      padding: 18px 20px;
+      background: #fbfcfd;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: box-shadow 0.2s;
+    }
+
+    .visit:hover {
+      box-shadow: 0 4px 20px rgba(11, 79, 108, 0.1);
+    }
+
+    .visit::before {
+      content: '';
+      position: absolute;
+      left: -24px;
+      top: 22px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: 2px solid white;
+      box-shadow: 0 0 0 2px var(--primary);
+    }
+
+    .visit-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .visit-date {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .visit-doctor {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .visit-spec {
+      font-size: 12px;
+      color: var(--primary-mid);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .visit-row {
+      margin-top: 10px;
+    }
+
+    .row-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+
+    .diagnosis {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .data-table thead tr {
+      background: var(--primary);
+    }
+
+    .data-table thead th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: white;
+    }
+
+    .data-table tbody td {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-pdf {
+      background: var(--green);
+      color: white;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.2s;
+    }
+
+    .btn-pdf:hover {
+      background: #135935;
+      transform: translateY(-1px);
+    }
+
+    .notes {
+      background: var(--amber-light);
+      border-left: 3px solid var(--amber);
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 13px;
+      color: #5a3a00;
+      margin-top: 10px;
+      line-height: 1.6;
+    }
+
+    .surgery-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 16px;
+      background: var(--accent-light);
+      border: 1px solid #f0d0c0;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .referral-card {
+      background: #f4f1fb;
+      border: 1px solid #d8cff0;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 10px;
+    }
+
+    .ref-route {
+      font-size: 14px;
+      font-weight: 700;
+      color: #4a2d8f;
+      margin-bottom: 4px;
+    }
+
+    .empty {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 640px) {
+      nav {
+        padding: 0 16px;
+      }
+
+      .page {
+        padding: 20px 14px 40px;
+      }
+
+      .patient-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .emergency-banner {
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav>
+    <div class="logo">SHI<em>FAA</em></div>
+    <div class="nav-right">
+      <span class="nav-pill">Patient Portal</span>
+      <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
+  </nav>
+
+  <div class="page">
+
+    <div class="emergency-banner">
+      <div>
+        <div class="label">🚨 Emergency Info</div>
+      </div>
+      <div class="emergency-divider"></div>
+      <div>
+        <div class="label">Blood Group</div>
+        <div class="value" id="em-blood">—</div>
+      </div>
+      <div class="emergency-divider"></div>
+      <div>
+        <div class="label">Allergies</div>
+        <div class="value" id="em-allergies">—</div>
+      </div>
+      <div class="emergency-divider"></div>
+      <div>
+        <div class="label">Active Conditions</div>
+        <div class="value" id="em-conditions">—</div>
+      </div>
+    </div>
+
+    <div class="patient-header">
+      <div class="avatar" id="avatar-initial">?</div>
+      <div class="patient-info">
+        <h1 id="p-name">Loading...</h1>
+        <div style="font-size:12px; color:var(--text-muted); margin-top:2px;" id="p-cnic">—</div>
+        <div class="patient-meta-row" id="p-meta"></div>
+        <div class="condition-tags" id="p-tags"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <div class="section-icon">📋</div>
+        <h2>Medical Timeline</h2>
+        <span class="count-badge" id="visit-count">0 Visits</span>
+      </div>
+      <div class="timeline" id="timeline-container">
+        <div class="empty">No visits recorded yet.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <div class="section-icon">💊</div>
+        <h2>Active Medications</h2>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Medicine</th><th>Dose</th><th>Frequency</th></tr></thead>
+        <tbody id="meds-body"><tr><td colspan="3" class="empty">None</td></tr></tbody>
+      </table>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;" id="lower-grid">
+      <div class="section" style="margin-bottom:0;">
+        <div class="section-head">
+          <div class="section-icon">🧪</div>
+          <h2>Lab Reports</h2>
+        </div>
+        <table class="data-table">
+          <thead><tr><th>Date</th><th>Report</th><th>Action</th></tr></thead>
+          <tbody id="labs-body"><tr><td colspan="3" class="empty">Loading...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="section" style="margin-bottom:0;">
+        <div class="section-head">
+          <div class="section-icon">🔪</div>
+          <h2>Surgery History</h2>
+        </div>
+        <div id="surgery-container">
+          <p class="empty">No surgeries on record.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head">
+        <div class="section-icon">🔀</div>
+        <h2>Referrals</h2>
+      </div>
+      <div id="referral-container">
+        <p class="empty">No referrals recorded.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCWnb5WA8GHS3Ez_nEpVKbGJox6dGEdYOg",
+      authDomain: "shifaa-2fb18.firebaseapp.com",
+      projectId: "shifaa-2fb18",
+      storageBucket: "shifaa-2fb18.firebasestorage.app",
+      messagingSenderId: "535826100759",
+      appId: "1:535826100759:web:d31fa59255923dc6636252"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const patientData = JSON.parse(sessionStorage.getItem('shifaa_patient'));
+    if (!patientData) window.location.href = 'login.html';
+
+    window.pdfStore = {};
+    let currentPatient = null;
+
+    async function loadPatient() {
+      const snap = await getDoc(doc(db, "patients", patientData.cnic));
+      if (!snap.exists()) {
+        document.getElementById('p-name').textContent = 'Record not found';
+        return;
+      }
+      currentPatient = snap.data();
+      renderProfile(currentPatient);
+      loadLiveReports(patientData.cnic);
+    }
+
+    function renderProfile(p) {
+      document.getElementById('em-blood').textContent = p.blood_group || '—';
+      document.getElementById('em-allergies').textContent = (p.allergies || []).join(', ') || 'None';
+      document.getElementById('em-conditions').textContent = (p.chronic_conditions || []).join(', ') || 'None';
+      document.getElementById('avatar-initial').textContent = (p.name || '?')[0].toUpperCase();
+      document.getElementById('p-name').textContent = p.name || '—';
+      document.getElementById('p-cnic').textContent = `CNIC: ${p.cnic}`;
+
+      const metaItems = [
+        { key: 'Age', val: `${p.age} yrs` },
+        { key: 'Gender', val: p.gender },
+        { key: 'City', val: p.city },
+        { key: 'Phone', val: p.phone },
+      ];
+      document.getElementById('p-meta').innerHTML = metaItems.map(m =>
+        `<div class="meta-chip"><div class="key">${m.key}</div><div class="val">${m.val || '—'}</div></div>`
+      ).join('') + `<div class="meta-chip"><div class="key">Blood</div><div class="val"><span class="blood-tag">${p.blood_group || '—'}</span></div></div>`;
+
+      const tags = [
+        ...(p.chronic_conditions || []).map(c => `<span class="ctag ctag-amber">⚠ ${c}</span>`),
+        ...(p.allergies || []).map(a => `<span class="ctag ctag-red">🚫 Allergy: ${a}</span>`),
+      ];
+      document.getElementById('p-tags').innerHTML = tags.join('');
+
+      const visits = p.visits || [];
+      document.getElementById('visit-count').textContent = `${visits.length} Visit${visits.length !== 1 ? 's' : ''}`;
+      if (visits.length) {
+        document.getElementById('timeline-container').innerHTML = visits.map((v, idx) => `
+          <div class="visit">
+            <div class="visit-top">
+              <div>
+                <div class="visit-date">${v.date || '—'}</div>
+                <div class="visit-doctor">${v.doctor || '—'}</div>
+                <div class="visit-spec">${v.specialization || ''}</div>
+              </div>
+            </div>
+            ${v.symptoms?.length ? `<div class="visit-row"><div class="row-label">Symptoms</div><div class="tags-row">${v.symptoms.map(s => `<span class="ctag ctag-red">${s}</span>`).join('')}</div></div>` : ''}
+            ${v.diagnosis ? `<div class="visit-row"><div class="row-label">Diagnosis</div><div class="diagnosis">${v.diagnosis}</div></div>` : ''}
+            ${v.prescription?.length ? `
+              <div class="visit-row">
+                <div class="row-label">Prescription</div>
+                <table class="data-table">
+                  <thead><tr><th>Medicine</th><th>Dose</th><th>Frequency</th></tr></thead>
+                  <tbody>${v.prescription.map(rx => `<tr><td><strong>${rx.medicine}</strong></td><td>${rx.dose}</td><td>${rx.frequency}</td></tr>`).join('')}</tbody>
+                </table>
+                <button class="btn-pdf" onclick="downloadPrescriptionAsPDF(${idx})">📄 Download Prescription PDF</button>
+              </div>
+            ` : ''}
+            ${v.notes ? `<div class="notes">📝 ${v.notes}</div>` : ''}
+          </div>
+        `).join('');
+      }
+
+      const meds = p.active_medications || [];
+      document.getElementById('meds-body').innerHTML = meds.length ? meds.map(m => `
+        <tr><td><strong>${m.medicine}</strong></td><td>${m.dose}</td><td>${m.frequency}</td></tr>
+      `).join('') : '<tr><td colspan="3" class="empty">None</td></tr>';
+
+      const surgeries = p.surgeries || [];
+      document.getElementById('surgery-container').innerHTML = surgeries.length ? surgeries.map(s => `
+        <div class="surgery-card"><div class="sicon">🔪</div><div><div class="sname">${s.name}</div><div class="smeta">${s.date} · ${s.hospital || ''}</div></div></div>
+      `).join('') : '<p class="empty">No surgeries on record.</p>';
+
+      const refs = p.referrals || [];
+      document.getElementById('referral-container').innerHTML = refs.length ? refs.map(r => `
+        <div class="referral-card"><div class="ref-detail" style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">${r.date}</div><div class="ref-route">${r.from} → ${r.to}</div><div class="ref-detail">Reason: ${r.reason}</div>${r.notes ? `<div class="ref-detail">Notes: ${r.notes}</div>` : ''}</div>
+      `).join('') : '<p class="empty">No referrals recorded.</p>';
+    }
+
+    async function loadLiveReports(cnic) {
+      try {
+        const q = query(collection(db, "reports"), where("allowedPatientCNIC", "==", cnic));
+        const snapshot = await getDocs(q);
+        let html = '';
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          window.pdfStore[docSnap.id] = data.pdfData;
+          html += `<tr><td>${data.timestamp || 'Live Node'}</td><td><strong>${data.testType || 'Lab Report'}</strong></td><td><button class="view-btn" onclick="openReportNode('${docSnap.id}')">View PDF</button></td></tr>`;
+        });
+        document.getElementById('labs-body').innerHTML = html || '<tr><td colspan="3" class="empty">No reports available</td></tr>';
+      } catch (err) {
+        document.getElementById('labs-body').innerHTML = '<tr><td colspan="3" class="empty" style="color:var(--red);">Error loading reports</td></tr>';
+      }
+    }
+
+    window.openReportNode = function (id) {
+      const base64 = window.pdfStore[id];
+      if (!base64) { alert("Report not available."); return; }
+      const win = window.open();
+      win.document.write('<iframe src="' + base64 + '" frameborder="0" style="width:100%;height:100%;"></iframe>');
+    };
+
+    window.downloadPrescriptionAsPDF = async function (visitIndex) {
+      if (!currentPatient) return;
+      const visit = currentPatient.visits[visitIndex];
+      if (!visit || !visit.prescription) {
+        alert("No prescription data to download.");
+        return;
+      }
+      const { jsPDF } = window.jspdf;
+      const patient = currentPatient;
+
+      const pdfContent = document.createElement('div');
+      pdfContent.style.fontFamily = "'Mulish', 'DM Sans', sans-serif";
+      pdfContent.style.padding = '28px';
+      pdfContent.style.maxWidth = '800px';
+      pdfContent.style.margin = '0 auto';
+      pdfContent.style.backgroundColor = 'white';
+      pdfContent.style.border = '1px solid #ddd';
+      pdfContent.style.borderRadius = '12px';
+
+      pdfContent.innerHTML = `
+        <div style="text-align:center; border-bottom:2px solid #0b4f6c; padding-bottom:16px; margin-bottom:20px;">
+          <h1 style="color:#0b4f6c; margin:0;">Shifaa Health</h1>
+          <p style="margin:4px 0;">Digital Prescription – Pakistan</p>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:24px;">
+          <div>
+            <strong>Patient:</strong> ${patient.name}<br>
+            <strong>CNIC:</strong> ${patient.cnic}<br>
+            <strong>Age/Gender:</strong> ${patient.age} yrs, ${patient.gender}<br>
+            <strong>Blood Group:</strong> ${patient.blood_group || 'N/A'}
+          </div>
+          <div>
+            <strong>Date:</strong> ${visit.date || new Date().toLocaleDateString('en-PK')}<br>
+            <strong>Doctor:</strong> ${visit.doctor || 'Not specified'}<br>
+            <strong>Specialization:</strong> ${visit.specialization || ''}
+          </div>
+        </div>
+        ${visit.diagnosis ? `<div style="margin-bottom:16px;"><strong>Diagnosis:</strong><br>${visit.diagnosis}</div>` : ''}
+        ${visit.prescription?.length ? `
+          <div style="margin-bottom:16px;">
+            <strong>Prescribed Medications:</strong>
+            <table style="width:100%; border-collapse:collapse; margin-top:8px;">
+              <thead><tr style="background:#e8f4f8;"><th style="padding:8px; text-align:left;">Medicine</th><th>Dose</th><th>Frequency</th></tr></thead>
+              <tbody>
+                ${visit.prescription.map(rx => `
+                  <tr style="border-bottom:1px solid #ddd;"><td style="padding:8px;">${rx.medicine}</td><td style="padding:8px;">${rx.dose}</td><td style="padding:8px;">${rx.frequency}</td></tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        ` : ''}
+        ${visit.notes ? `<div style="margin-bottom:16px;"><strong>Doctor's Notes:</strong><br>${visit.notes}</div>` : ''}
+        <div style="margin-top:32px; border-top:1px dashed #aaa; padding-top:16px; text-align:center; font-size:11px; color:gray;">
+          This is a computer-generated prescription. Valid with doctor's signature.<br>
+          Shifaa — Pakistan's unified health network.
+        </div>
+      `;
+
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.top = '0';
+      tempDiv.appendChild(pdfContent);
+      document.body.appendChild(tempDiv);
+
+      try {
+        const canvas = await html2canvas(pdfContent, { scale: 2, backgroundColor: '#ffffff' });
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgWidth = 210;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+        pdf.save(`Prescription_${patient.name}_${visit.date || new Date().toISOString().slice(0,10)}.pdf`);
+      } catch (err) {
+        console.error(err);
+        alert('Could not generate PDF. Please try again.');
+      } finally {
+        document.body.removeChild(tempDiv);
+      }
+    };
+
+    window.logout = () => { sessionStorage.removeItem('shifaa_patient'); window.location.href = 'login.html'; };
+    loadPatient();
+
+    function checkGrid() {
+      const grid = document.getElementById('lower-grid');
+      if (grid) grid.style.gridTemplateColumns = window.innerWidth < 640 ? '1fr' : '1fr 1fr';
+    }
+    window.addEventListener('resize', checkGrid);
+    checkGrid();
+  </script>
+</body>
+
+</html>
