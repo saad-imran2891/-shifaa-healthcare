@@ -600,7 +600,7 @@
     const db = getFirestore(app);
     enableIndexedDbPersistence(db).catch(() => {});
 
-    // ============ FIXED: Load doctor from sessionStorage ============
+    // ============ Load doctor from sessionStorage ============
     let currentDoctor = null;
     const storedDoctor = sessionStorage.getItem('shifaa_doctor');
     if (storedDoctor) {
@@ -614,10 +614,12 @@
     // Update UI with doctor's name and specialization
     document.getElementById('drDropName').innerText = currentDoctor.name;
     document.getElementById('drDropSpec').innerText = currentDoctor.specialization || "General Physician";
-    // Also update the avatar initials (optional, could use first two letters)
     document.getElementById('drAvatar').innerText = (currentDoctor.name?.slice(0,2) || "DR").toUpperCase();
 
-    let allPatients = [], filtered = [], selected = null;
+    let allPatients = [];        // raw patients from Firestore
+    let myPatients = [];         // patients who have visited this doctor
+    let filtered = [];
+    let selected = null;
     let allReferrals = [], filteredReferrals = [];
     let currentView = 'patients';
 
@@ -625,7 +627,7 @@
     window.toggleDropdown = () => document.getElementById('drDropdown').classList.toggle('show');
     window.logout = () => { 
       sessionStorage.removeItem('shifaa_doctor');
-      sessionStorage.removeItem('shifaa_user');  // clear both
+      sessionStorage.removeItem('shifaa_user');
       window.location.href = "login.html";
     };
     window.closePatientModal = () => document.getElementById('patientModalOverlay').classList.remove('open');
@@ -709,10 +711,19 @@
         allPatients = pSnap.docs.map(d => ({ ...d.data(), firestoreId: d.id }));
         allReferrals = rSnap.docs.map(d => ({ ...d.data(), firestoreId: d.id }));
 
+        // ============ FIX: Filter patients that have a visit with this doctor ============
+        myPatients = allPatients.filter(p => {
+          if (!p.visits || p.visits.length === 0) return false;
+          return p.visits.some(v => v.doctor === currentDoctor.name);
+        });
+
         document.getElementById('referralCountBadge').textContent = allReferrals.length;
 
-        applyFilter();
-        if (currentView === 'patients' && filtered.length && !selected) selectPatient(filtered[0]);
+        // For patient list view, use myPatients
+        filtered = [...myPatients];
+        renderPatientList();
+
+        if (filtered.length && !selected) selectPatient(filtered[0]);
       } catch (err) {
         console.error(err);
         document.getElementById('patientList').innerHTML = '<div class="loading">Error loading records.</div>';
@@ -722,7 +733,8 @@
     function applyFilter() {
       const q = document.getElementById('searchInput')?.value.toLowerCase().trim() || '';
       if (currentView === 'patients') {
-        filtered = q ? allPatients.filter(p => p.name?.toLowerCase().includes(q) || p.cnic?.includes(q)) : [...allPatients];
+        // Filter from myPatients (only doctor's own patients)
+        filtered = q ? myPatients.filter(p => p.name?.toLowerCase().includes(q) || p.cnic?.includes(q)) : [...myPatients];
         renderPatientList();
       } else {
         filteredReferrals = q ? allReferrals.filter(r => r.patientName?.toLowerCase().includes(q) || r.patientCNIC?.includes(q)) : [...allReferrals];
@@ -734,7 +746,10 @@
       const el = document.getElementById('patientList');
       if (!el) return;
       el.innerHTML = '';
-      if (!filtered.length) { el.innerHTML = '<div class="loading">No patients found.</div>'; return; }
+      if (!filtered.length) {
+        el.innerHTML = '<div class="empty-state">No patients have visited you yet.</div>';
+        return;
+      }
       filtered.forEach(p => {
         const div = document.createElement('div');
         div.className = 'p-item' + (selected?.firestoreId === p.firestoreId ? ' active' : '');
@@ -811,7 +826,7 @@
             </div>
             ${v.symptoms?.length ? `<div class="v-row"><div class="v-label">Symptoms</div><div class="tags-row">${v.symptoms.map(s=>`<span class="vtag vtag-red">${s}</span>`).join('')}</div></div>` : ''}
             ${v.diagnosis ? `<div class="v-diagnosis">Diagnosis: ${v.diagnosis}</div>` : ''}
-            ${v.prescription?.length ? `<div class="v-row"><div class="v-label">Prescription</div><table class="dt"><thead><tr><th>Medicine</th><th>Dose</th><th>Frequency</th></tr></thead><tbody>${v.prescription.map(rx=>`<tr><td>${rx.medicine}</td><td>${rx.dose}</td><td>${rx.frequency}</td></tr>`).join('')}</tbody></table></div>` : ''}
+            ${v.prescription?.length ? `<div class="v-row"><div class="v-label">Prescription</div><table class="dt"><thead><tr><th>Medicine</th><th>Dose</th><th>Frequency</th></tr></thead><tbody>${v.prescription.map(rx=>`<tr><td>${rx.medicine}</td><td>${rx.dose}</td><td>${rx.frequency}</td></tr>`).join('')}</tbody><table></div>` : ''}
             ${v.notes ? `<div class="notes-box">${v.notes}</div>` : ''}
           </div>`).join('')
         : '<p style="color:var(--text-muted);font-size:13px;">No prior history found in system.</p>';
@@ -985,10 +1000,12 @@
         const data = { name, cnic, age: parseInt(age), gender, chronic_conditions: chronic, allergies, visits: [], active_medications: [] };
         const docRef = await addDoc(collection(db, "patients"), data);
         const newPatient = { ...data, firestoreId: docRef.id };
-        allPatients.unshift(newPatient);
+        // New patient has no visits yet, so they won't appear in myPatients list (good)
+        allPatients.push(newPatient);
+        // Do not add to myPatients because they haven't visited this doctor yet
         closePatientModal();
-        applyFilter();
-        selectPatient(newPatient);
+        // Reload the whole list to keep myPatients correct
+        await init();
       } catch (err) {
         console.error(err); alert("Error saving patient");
       } finally {
@@ -1024,17 +1041,23 @@
       btn.disabled = true; btn.textContent = 'Saving...';
 
       try {
-        if (!p.visits) p.visits = [];
-        p.visits.push(newVisit);
-        p.active_medications = medicines;
-        const idx = allPatients.findIndex(ap => ap.firestoreId === p.firestoreId);
-        if (idx !== -1) allPatients[idx] = p;
+        const patientRef = doc(db, "patients", p.cnic);
+        await updateDoc(patientRef, { visits: arrayUnion(newVisit), active_medications: medicines });
+        // After saving the visit, the patient belongs to this doctor, so add to myPatients
+        if (!myPatients.some(pat => pat.cnic === p.cnic)) {
+          const updatedPatient = { ...p, visits: [...(p.visits || []), newVisit], active_medications: medicines };
+          myPatients.push(updatedPatient);
+          // Also update allPatients
+          const idx = allPatients.findIndex(ap => ap.cnic === p.cnic);
+          if (idx !== -1) allPatients[idx] = updatedPatient;
+        }
         closeModal();
-        selectPatient(p);
-        await updateDoc(doc(db, "patients", p.firestoreId), { visits: arrayUnion(newVisit), active_medications: medicines });
+        await init(); // refresh lists
+        // Reselect the patient
+        const refreshed = myPatients.find(pat => pat.cnic === p.cnic);
+        if (refreshed) selectPatient(refreshed);
       } catch (err) {
         console.error(err); alert("Error saving prescription. Please try again.");
-        p.visits.pop(); renderDetail(p);
       } finally {
         btn.disabled = false; btn.textContent = 'Save';
       }
