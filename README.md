@@ -1,110 +1,154 @@
-🏥 Shifaa – Pakistan's Unified Health Record
+<div align="center">
 
-One Record. One Platform. Everywhere.
+# 🏥 Shifaa
 
-Shifaa is a digital healthcare ecosystem designed to connect patients, doctors, and diagnostic laboratories across Pakistan through a single CNIC-linked medical record. The platform eliminates fragmented healthcare data, lost reports, and disconnected referrals by providing a secure, portable, and unified health record accessible from anywhere.
+### Pakistan's Unified Health Record Platform
 
-🌟 Vision
+**One Record • One Platform • Everywhere**
 
-Healthcare information should follow the patient, not remain trapped in hospitals, clinics, or paper files.
+<img src="https://img.shields.io/badge/Status-Prototype-success?style=for-the-badge" />
+<img src="https://img.shields.io/badge/Hackathon-Project-blue?style=for-the-badge" />
+<img src="https://img.shields.io/badge/Firebase-Powered-orange?style=for-the-badge" />
+<img src="https://img.shields.io/badge/Made%20In-Pakistan-green?style=for-the-badge" />
 
-Shifaa enables every citizen to maintain a permanent digital medical record that can be securely accessed by authorized healthcare professionals whenever needed.
+---
 
-🧠 Problem Statement
+### Connecting Patients, Doctors & Labs Through One CNIC-Linked Medical Record
 
-Pakistan's healthcare system faces several critical challenges:
+</div>
 
-Patients repeatedly explain their medical history to every new doctor.
-Lab reports are paper-based and frequently lost or delayed.
-Referrals often arrive without diagnostic context or previous treatment history.
-Chronic disease patients receive fragmented care across multiple providers.
-Emergency responders lack access to vital medical information.
-Our Solution
+---
 
-Shifaa creates a CNIC-linked nationwide health record system that:
+# 📖 Overview
 
-Centralizes patient history
-Connects doctors and laboratories
-Preserves referral context
-Provides emergency-ready medical information
-Enables secure digital healthcare workflows
-🚀 Key Features
-👤 Patient Portal (patient.html)
-Emergency information dashboard
-Blood Group
-Allergies
-Chronic Conditions
-Complete medical timeline
-Prescription management
-Active medications tracking
-Lab report viewer
-Surgery history
-Referral history
-Professional PDF prescription download
-👨‍⚕️ Doctor Portal (doctor.html)
-PMDC-based login system
-Search patients by CNIC or name
-Manage personal patient list
-View referred patients
-Create new patient records
-Access complete patient medical history
-Generate digital prescriptions
-Refer patients to other doctors
-Real-time referral tracking
-Firestore-based data synchronization
-🧪 Laboratory Portal (lab.html)
-Laboratory dashboard
-Upload PDF diagnostic reports
-Link reports to patients and doctors
-Secure report storage
-Access-controlled document sharing
-Revenue & integrity dashboard
-📝 Registration System (register.html)
-Patient Registration
-CNIC
-Name
-Age
-Gender
-Blood Group
-Phone Number
-City
-Allergies
-Chronic Conditions
-Doctor Registration
-Name
-PMDC Number
-Specialization
-Hospital
-City
-Contact Information
-Laboratory Registration
-Laboratory Name
-Registration Number
-Address
-City
-Laboratory Type
-Contact Information
-🔐 Authentication
-Patient Login
-CNIC-based authentication
-Demo password support
-Doctor Login
-PMDC-based authentication
-Laboratory Login
-License ID authentication
-Session Management
-Session Storage based authentication
-Lightweight implementation for demonstration and hackathon deployment
-🛠️ Technology Stack
-Component	Technology
-Frontend	HTML5, CSS3, Vanilla JavaScript
-Database	Firebase Firestore
-File Storage	Firebase Storage
-Authentication	Session Storage
-PDF Generation	jsPDF, html2canvas
-Typography	Google Fonts (Playfair Display, Mulish)
-Version Control	Git & GitHub
-📂 Project Structure
+```bash
+Patients repeat their medical history at every clinic.
+Lab reports get lost.
+Referrals arrive without context.
+Emergency information is unavailable when needed.
+
+Shifaa solves these problems by creating a unified,
+portable, and secure healthcare record system for Pakistan.
+```
+
+---
+
+# 🎯 Problem Statement
+
+```diff
+- Fragmented Medical History
+- Lost Diagnostic Reports
+- Paper-Based Prescriptions
+- Referral Information Loss
+- No Unified Patient Record
+
++ Single CNIC-Based Health Record
++ Secure Digital Prescriptions
++ Connected Doctors & Labs
++ Complete Medical Timeline
++ Emergency Medical Access
+```
+
+---
+
+# 🚀 Core Features
+
+## 👤 Patient Portal
+
+```yaml
+Emergency Information:
+  - Blood Group
+  - Allergies
+  - Chronic Conditions
+
+Medical Records:
+  - Complete Timeline
+  - Prescription History
+  - Surgery Records
+  - Referral Tracking
+
+Reports:
+  - PDF Viewer
+  - Lab Results
+  - Download Prescriptions
+```
+
+---
+
+## 👨‍⚕️ Doctor Portal
+
+```yaml
+Patient Management:
+  - Search by CNIC
+  - Add New Patients
+  - View Full History
+
+Clinical Tools:
+  - Digital Prescriptions
+  - Referral System
+  - Medical Timeline
+
+Real-Time Features:
+  - Firestore Sync
+  - Referral Notifications
+```
+
+---
+
+## 🧪 Laboratory Portal
+
+```yaml
+Lab Operations:
+  - Upload PDF Reports
+  - Link Patient Records
+  - Doctor Access Control
+
+Business Features:
+  - License Dashboard
+  - Node Integrity Tracking
+  - B2B Revenue Model
+```
+
+---
+
+# 🏗️ System Architecture
+
+```text
+┌─────────────┐
+│   Patient   │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────────┐
+│      Firebase       │
+│  Unified Database   │
+└─────────┬───────────┘
+          │
+ ┌────────┴────────┐
+ ▼                 ▼
+Doctor         Laboratory
+ Portal          Portal
+```
+
+---
+
+# 🛠 Tech Stack
+
+| Category        | Technology               |
+| --------------- | ------------------------ |
+| Frontend        | HTML5, CSS3, JavaScript  |
+| Database        | Firebase Firestore       |
+| Storage         | Firebase Storage         |
+| Authentication  | Session Storage          |
+| PDF Engine      | jsPDF + html2canvas      |
+| Fonts           | Playfair Display, Mulish |
+| Version Control | Git & GitHub             |
+
+---
+
+# 📂 Project Structure
+
+```bash
 Shifaa/
 │
 ├── index.html
@@ -117,124 +161,134 @@ Shifaa/
 │
 ├── seed.html
 │
+├── assets/
 ├── css/
 ├── js/
-├── assets/
 │
 └── README.md
-⚙️ Installation & Setup
-1. Create Firebase Project
-Create a Firebase project.
-Enable:
-Firestore Database
-Firebase Storage
-Authentication (Email/Password)
-2. Configure Firebase
+```
 
-Replace the existing Firebase configuration in the project with your own configuration values.
+---
 
-3. Seed Demo Data
+# ⚙️ Installation
 
-Open:
+## Clone Repository
 
-seed.html
+```bash
+git clone https://github.com/yourusername/shifaa.git
+cd shifaa
+```
 
-Click:
+## Start Local Server
 
-Seed Database Now
-
-This creates:
-
-32 Demo Patients
-10 Demo Doctors
-5 Demo Laboratories
-
-with realistic medical histories and records.
-
-4. Run the Application
-
-Use any local server:
-
-# Python
-python -m http.server
-
-# VS Code
-Live Server Extension
-
-Open:
-
-index.html
+```bash
+python -m http.server 8000
+```
 
 or
 
-login.html
-🔑 Demo Credentials
-👤 Patient Login
-CNIC	Password
-42101-1234567-8	patient123
-42201-2345678-2	patient123
-35201-3456789-3	patient123
+```bash
+VS Code → Live Server
+```
 
-Any seeded patient can use:
+---
 
+# 🔥 Firebase Setup
+
+```bash
+1. Create Firebase Project
+2. Enable Firestore
+3. Enable Storage
+4. Enable Authentication
+5. Replace Firebase Config
+6. Run seed.html
+```
+
+---
+
+# 🧪 Demo Credentials
+
+## Patient
+
+```bash
+CNIC: 42101-1234567-8
 Password: patient123
-👨‍⚕️ Doctor Login
-PMDC	Email	Password
-12345	ahmed@hospital.pk	any
-34567	bilal.h@sch.pk	any
-🧪 Laboratory Login
-License ID	Email	Password
-LAB-9923	any	any
-💰 Business Model
+```
 
-Shifaa follows a B2B Healthcare SaaS Model:
+## Doctor
 
-Laboratory subscription plans
-Healthcare provider licensing
-Hospital integrations
-Enterprise healthcare partnerships
-🎯 Future Roadmap
-Completed ✅
-Digital prescriptions
-PDF prescription generation
-Referral management system
-Laboratory report upload
-Unified patient records
-Planned ⏳
-QR-based patient identification
-WhatsApp prescription reminders
-Pharmacy integration portal
-Push notifications
-Mobile application
-AI-assisted health insights
-National healthcare interoperability support
-👨‍💻 Team – Quantum Tech Visionaries
-Name	Roll Number
-Saad Imran	SE241078
-Sahil Kumar	SE241059
-Ubaidullah Rasheed	SE241075
-🏆 Hackathon Impact
+```bash
+PMDC: 12345
+Email: ahmed@hospital.pk
+Password: any
+```
 
-Shifaa demonstrates how a unified healthcare record system can:
+## Laboratory
 
-Reduce medical errors
-Improve treatment continuity
-Accelerate referrals
-Enhance emergency response
-Digitize healthcare infrastructure
-Improve patient outcomes nationwide
-📄 License
+```bash
+License ID: LAB-9923
+Password: any
+```
 
-This project was developed for educational and hackathon purposes.
+---
 
-© Quantum Tech Visionaries. All Rights Reserved.
+# 📈 Business Model
 
-🙏 Acknowledgements
-Firebase
-jsPDF
-html2canvas
-Google Fonts
-❤️ Shifaa
+```yaml
+Revenue Sources:
+  - Laboratory Licensing
+  - Hospital Integration
+  - Healthcare Partnerships
+  - Enterprise Subscriptions
+```
 
-Making healthcare portable across Pakistan.
-Built by Quantum Tech Visionaries.
+---
+
+# 🗺 Roadmap
+
+```diff
++ Digital Prescriptions
++ PDF Downloads
++ Referral System
++ Lab Report Uploads
+
+! QR Patient Identification
+! WhatsApp Reminders
+! Pharmacy Portal
+! Push Notifications
+! Mobile Application
+```
+
+---
+
+# 👨‍💻 Team Quantum Tech Visionaries
+
+| Member             | Roll Number |
+| ------------------ | ----------- |
+| Saad Imran         | SE241078    |
+| Sahil Kumar        | SE241059    |
+| Ubaidullah Rasheed | SE241075    |
+
+---
+
+# 🏆 Impact
+
+```bash
+✓ Faster Referrals
+✓ Better Continuity of Care
+✓ Reduced Paperwork
+✓ Improved Emergency Response
+✓ National Healthcare Digitization
+```
+
+---
+
+<div align="center">
+
+## ❤️ Shifaa
+
+### Making Healthcare Portable Across Pakistan
+
+Built by Quantum Tech Visionaries
+
+</div>
