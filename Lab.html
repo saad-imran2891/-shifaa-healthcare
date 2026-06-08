@@ -38,7 +38,6 @@
             padding-top: 80px;
         }
 
-        /* ── NAV BAR ── */
         nav {
             position: fixed;
             top: 0;
@@ -90,7 +89,6 @@
             padding: 0 24px;
         }
 
-        /* ── TOP LIVE SUBSCRIPTION BANNER (CLEANED) ── */
         .top-sub-bar {
             background: var(--navy);
             color: white;
@@ -154,20 +152,17 @@
             .grid-layout {
                 grid-template-columns: 1fr;
             }
-
             .top-sub-bar {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 16px;
             }
-
             .lab-meta-info {
                 flex-direction: column;
                 gap: 12px;
             }
         }
 
-        /* ── SHIFAA CARDS ── */
         .shifaa-card {
             background: var(--card);
             border-radius: 16px;
@@ -190,7 +185,6 @@
             margin-bottom: 24px;
         }
 
-        /* ── FINANCIALS WIDGET ── */
         .financial-box {
             background: var(--bg);
             border-radius: 10px;
@@ -219,7 +213,6 @@
             font-weight: 700;
         }
 
-        /* ── FORMS & INPUTS ── */
         .field {
             margin-bottom: 20px;
         }
@@ -261,7 +254,6 @@
             cursor: pointer;
         }
 
-        /* ── ACTION BUTTONS ── */
         .primary-btn {
             width: 100%;
             background: var(--navy);
@@ -294,7 +286,6 @@
 
 <body>
 
-    <!-- NAV -->
     <nav>
         <div class="logo">SHI<em>FAA</em></div>
         <button class="logout-btn" onclick="logout()">Logout Session</button>
@@ -302,16 +293,15 @@
 
     <div class="container">
 
-        <!-- LIVE SUBSCRIPTION HEADER BAR (No Pricing Shown Here Now) -->
         <div class="top-sub-bar">
             <div class="lab-meta-info">
                 <div class="meta-item">
                     <span class="meta-label">Connected Partner Node</span>
-                    <span class="meta-value"><strong>Chughtai Lab Network</strong></span>
+                    <span class="meta-value" id="labNameDisplay"><strong>Loading...</strong></span>
                 </div>
                 <div class="meta-item">
                     <span class="meta-label">Corporate License Key</span>
-                    <span class="meta-value" style="font-family: monospace; color: #5ecfef;">LAB-9923-PK</span>
+                    <span class="meta-value" id="licenseDisplay" style="font-family: monospace; color: #5ecfef;">---</span>
                 </div>
             </div>
             <div>
@@ -319,22 +309,18 @@
             </div>
         </div>
 
-        <!-- Lower Workspace Architecture -->
         <div class="grid-layout">
 
-            <!-- LEFT COLUMN: PDF UPLOAD MECHANISM -->
             <div class="shifaa-card">
                 <div class="card-title">Encrypted Diagnostic Upload Portal</div>
                 <div class="card-sub">Attach and transmit official PDF laboratory files directly to Patient & Doctor
                     pipelines instantly.</div>
 
-                <!-- Patient Control -->
                 <div class="field">
                     <label>Authorized Patient CNIC</label>
                     <input type="text" id="patient-cnic" placeholder="e.g., 42101-1234567-8" />
                 </div>
 
-                <!-- Doctor Control -->
                 <div class="field">
                     <label>Authorized Doctor PMDC ID</label>
                     <input type="text" id="doctor-pmdc" placeholder="e.g., 12345" />
@@ -358,7 +344,6 @@
                 <button class="primary-btn" style="margin-top: 8px;" id="upload-btn">Publish Secure PDF Node →</button>
             </div>
 
-            <!-- RIGHT COLUMN: FINANCIAL AND SAAS REVENUE MATRIX -->
             <div class="shifaa-card" style="height: fit-content;">
                 <div class="card-title" style="font-size: 18px;">B2B Revenue Architecture</div>
                 <p class="card-sub" style="margin-bottom: 16px;">Core Ecosystem Logic: Shifaa is 100% free for citizens
@@ -376,8 +361,7 @@
                     </div>
                 </div>
 
-                <p
-                    style="font-size: 11px; color: var(--text-muted); line-height: 1.5; text-align: center; margin-top: 16px;">
+                <p style="font-size: 11px; color: var(--text-muted); line-height: 1.5; text-align: center; margin-top: 16px;">
                     🔒 Privacy Rule enforced: Only database streams with matching Patient CNIC OR Doctor PMDC keys can
                     decrypt this attachment.
                 </p>
@@ -386,7 +370,6 @@
         </div>
     </div>
 
-    <!-- FIREBASE CONNECTION FOR REALTIME SYNC AND BASE64 STORAGE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
         import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -403,6 +386,18 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // ============ LOAD LAB SESSION ============
+        const labData = JSON.parse(sessionStorage.getItem('shifaa_lab'));
+        if (!labData) {
+            alert("No lab session found. Please login again.");
+            window.location.href = "login.html";
+        }
+
+        // Update UI with dynamic lab info (use IDs, not querySelector on text content)
+        document.getElementById('labNameDisplay').innerHTML = `<strong>${labData.name || "Lab Network"}</strong>`;
+        document.getElementById('licenseDisplay').innerText = labData.regno || "License Key";
+
+        // Upload functionality
         document.getElementById('upload-btn').addEventListener('click', async () => {
             const cnic = document.getElementById('patient-cnic').value.trim();
             const pmdc = document.getElementById('doctor-pmdc').value.trim();
@@ -437,7 +432,7 @@
                         resultDetails: type + " Document Attached",
                         pdfData: base64PDF,
                         timestamp: new Date().toLocaleDateString('en-GB'),
-                        originNode: "Chughtai Lab Network"
+                        originNode: labData.name || "Registered Lab"
                     });
 
                     alert("TRANSACTION SECURED:\nOfficial PDF report compiled and isolated! Access granted exclusively to Patient (" + cnic + ") and Doctor (" + pmdc + ").");
@@ -457,6 +452,7 @@
 
     <script>
         function logout() {
+            sessionStorage.removeItem('shifaa_lab');
             localStorage.removeItem("userRole");
             window.location.href = "login.html";
         }
